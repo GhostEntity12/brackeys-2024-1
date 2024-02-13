@@ -5,22 +5,8 @@ using UnityEngine;
 public class Toy : MonoBehaviour, IEquipment
 {
 	[SerializeField] private Transform interactLocation;
-	public Transform InteractLocation => InteractLocation;
+	public Transform InteractLocation => interactLocation;
 
-	public void Use(Animal a)
-	{
-		throw new System.NotImplementedException();
-	}
-
-	// Start is called before the first frame update
-	void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+	[field: SerializeField] public float UseTime { get; private set; } = 1f;
+	[field: SerializeField] public float EntertainmentReward { get; private set; } = 0.4f;
 }

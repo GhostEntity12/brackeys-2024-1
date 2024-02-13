@@ -1,26 +1,27 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class FoodBowl : MonoBehaviour, IEquipment
 {
-    [SerializeField] private Transform interactLocation;
-    public Transform InteractLocation => InteractLocation;
+	[SerializeField] private Transform interactLocation;
+	[SerializeField] float foodReward = 0.4f;
+	private int uses = 0;
 
-	public void Use(Animal a)
+	[field: SerializeField] public float UseTime { get; private set; } = 1f;
+
+	public Transform InteractLocation => interactLocation;
+	public bool Usable => uses > 0;
+	public float FoodReward => foodReward;
+
+	public float Use()
 	{
-		throw new System.NotImplementedException();
+		uses--;
+		return foodReward;
 	}
 
-	// Start is called before the first frame update
-	void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+	[ContextMenu("Refill")]
+	public void Refill()
+	{
+		uses = 3;
+		GameManager.Instance.ReturnEquipment(this);
+	}
 }

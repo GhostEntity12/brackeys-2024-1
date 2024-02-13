@@ -1,31 +1,26 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class LitterTray : MonoBehaviour, IEquipment
 {
 	[SerializeField] private Transform interactLocation;
-	public Transform InteractLocation => InteractLocation;
+	[SerializeField] private float BladderReward = 0.4f;
+	private int uses = 0;
 
-	[SerializeField] float useTime = 1f;
-	[SerializeField] float foodReward = 0.4f;
-	float useTimer;
+	[field: SerializeField] public float UseTime { get; private set; } = 1f;
 
-	void Update()
+	public Transform InteractLocation => interactLocation;
+	public bool Usable => uses > 0;
+
+	public float Use()
 	{
-		if (useTimer > 0)
-		{
-			useTimer -= Time.deltaTime;
-			if (useTimer <= 0)
-			{
-
-			}
-		}
+		uses--;
+		return BladderReward;
 	}
 
-	public void Use(Animal a)
+	[ContextMenu("Clean")]
+	public void Clean()
 	{
-		useTimer = useTime;
-		a.OnFinishPoop += 
+		uses = 5;
+		GameManager.Instance.ReturnEquipment(this);
 	}
 }

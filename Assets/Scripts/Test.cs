@@ -1,21 +1,21 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.U2D;
 
 public class Test : MonoBehaviour
 {
-    [Range(0, 1)]
-    public float a;
-    public float b;
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+	[Range(0, 15)]
+	public int index = 0;
+	public SpriteAtlas atlas;
+	SpriteRenderer spriteRenderer;
+	private void Start()
+	{
+		spriteRenderer= GetComponent<SpriteRenderer>();
+	}
 
-    // Update is called once per frame
-    void Update()
-    {
-        b = Mathf.Lerp(1.5f, 1f, a * 3.3f);
+	private void Update()
+	{
+		spriteRenderer.sprite = atlas.GetSprite("TileTest_" + index);
 	}
 }

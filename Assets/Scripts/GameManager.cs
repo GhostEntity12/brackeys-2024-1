@@ -40,7 +40,7 @@ public class GameManager : Singleton<GameManager>
 	{
 		foodBowl = null;
 		if (AvailableFoodbowls.Count == 0) return false;
-		else
+		
 		{
 			foodBowl = AvailableFoodbowls.Dequeue();
 			return true;
@@ -88,10 +88,12 @@ public class GameManager : Singleton<GameManager>
 				AvailableBeds.Enqueue(b);
 				break;
 			case FoodBowl fb:
-				AvailableFoodbowls.Enqueue(fb);
+				if (fb.Usable)
+					AvailableFoodbowls.Enqueue(fb);
 				break;
 			case LitterTray lt:
-				AvailableLitterTrays.Enqueue(lt);
+				if (lt.Usable)
+					AvailableLitterTrays.Enqueue(lt);
 				break;
 			case Toy t:
 				AvailableToys.Enqueue(t);
