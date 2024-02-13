@@ -178,7 +178,6 @@ public class Animal : MonoBehaviour
 
 	void ActionPoop()
 	{
-		Debug.Log($"{name} is attempting to poop");
 		// Walk to equipment
 		if (Vector3.Distance(transform.position, agent.destination) >= 0.1f) return;
 
@@ -188,6 +187,7 @@ public class Animal : MonoBehaviour
 		// On reach destination
 		if (usingEquipment == false)
 		{
+			Debug.Log($"Reached LitterTray {lt.name}");
 			usingEquipment = true;
 			animator.SetBool("Pooping", true);
 			timer = lt.UseTime;
@@ -205,7 +205,6 @@ public class Animal : MonoBehaviour
 
 	void ActionEat()
 	{
-		Debug.Log($"{name} is attempting to eat");
 		// Walk to equipment
 		if (Vector3.Distance(transform.position, agent.destination) >= 0.1f) return;
 
@@ -215,6 +214,7 @@ public class Animal : MonoBehaviour
 		// On reach destination
 		if (usingEquipment == false)
 		{
+			Debug.Log($"Reached FoodBowl {fb.name}");
 			usingEquipment = true;
 			animator.SetBool("Eating", true);
 			timer = fb.UseTime;
@@ -239,7 +239,6 @@ public class Animal : MonoBehaviour
 
 	void ActionPlay()
 	{
-		Debug.Log($"{name} is attempting to play");
 		if (Vector3.Distance(transform.position, agent.destination) >= 0.1f) return;
 
 		// Cache equipment
@@ -248,6 +247,7 @@ public class Animal : MonoBehaviour
 		// On reach destination
 		if (usingEquipment == false)
 		{
+			Debug.Log($"Reached Toy {t.name}");
 			usingEquipment = true;
 			animator.SetBool("Playing", true);
 			timer = t.UseTime;
@@ -259,7 +259,10 @@ public class Animal : MonoBehaviour
 		if (timer > 0) return;
 
 		// On wait time finished, roll to stop playing
-		if (Random.value < 1 - Entertainment + 0.1f)
+		float endPlayCheck = Random.value;
+		float endPlayThreshold = 0.9f - Entertainment;
+		Debug.Log($"{endPlayCheck}/{endPlayThreshold}");
+		if (endPlayCheck > endPlayThreshold)
 		{
 			usingEquipment = false;
 			animator.SetBool("Playing", false);
@@ -271,7 +274,6 @@ public class Animal : MonoBehaviour
 
 	void ActionSleep()
 	{
-		Debug.Log($"{name} is attempting to sleep");
 		if (Vector3.Distance(transform.position, agent.destination) >= 0.1f) return;
 
 		// Cache equipment
@@ -318,8 +320,9 @@ public class Animal : MonoBehaviour
 		Debug.Log($"Food Check: <color={(roll < foodCheck ? "red" : "green")}>{roll}/{foodCheck}</color>");
 		if (roll < foodCheck && GameManager.Instance.TryGetFoodBowl(out FoodBowl bowl))
 		{
-			equipmentInUse = bowl;
 			agent.destination = equipmentInUse.InteractLocation.position;
+			equipmentInUse = bowl;
+			Debug.Log($"{name} is attempting to eat");
 			return Behaviour.Eating;
 		}
 
@@ -330,6 +333,7 @@ public class Animal : MonoBehaviour
 			Debug.Log($"Bladder Check: <color={(roll < bladderCheck ? "red" : "green")}>{roll}/{bladderCheck}</color>");
 			if (roll < bladderCheck && GameManager.Instance.TryGetLitterTray(out LitterTray tray))
 			{
+				Debug.Log($"{name} is attempting to poop");
 				equipmentInUse = tray;
 				agent.destination = equipmentInUse.InteractLocation.position;
 				return Behaviour.Pooping;
@@ -353,7 +357,7 @@ public class Animal : MonoBehaviour
 
 				if (GameManager.Instance.TryGetBed(out Bed bed))
 				{
-					Debug.Log($"Sleepin in bed {bed.name}");
+					Debug.Log($"Sleeping in bed {bed.name}");
 					equipmentInUse = bed;
 					agent.destination = equipmentInUse.InteractLocation.position;
 					return Behaviour.Sleeping;
@@ -371,7 +375,7 @@ public class Animal : MonoBehaviour
 
 				if (GameManager.Instance.TryGetBed(out bed))
 				{
-					Debug.Log($"Sleepin in bed {bed.name}");
+					Debug.Log($"Sleeping in bed {bed.name}");
 					equipmentInUse = bed;
 					agent.destination = equipmentInUse.InteractLocation.position;
 					return Behaviour.Sleeping;
