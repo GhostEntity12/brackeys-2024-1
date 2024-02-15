@@ -209,6 +209,7 @@ public class Animal : MonoBehaviour
 		LitterTray lt = equipmentInUse as LitterTray;
 		if (!usingEquipment)
 		{
+			Debug.Log($"Reached LitterTray {lt.name}");
 			usingEquipment = true;
 			animator.SetBool("Pooping", true);
 			timer = lt.UseTime;
@@ -237,6 +238,7 @@ public class Animal : MonoBehaviour
 		FoodBowl fb = equipmentInUse as FoodBowl;
 		if (!usingEquipment)
 		{
+			Debug.Log($"Reached FoodBowl {fb.name}");
 			usingEquipment = true;
 			animator.SetBool("Eating", true);
 			timer = fb.UseTime;
@@ -274,6 +276,7 @@ public class Animal : MonoBehaviour
 		Toy t = equipmentInUse as Toy;
 		if (!usingEquipment)
 		{
+			Debug.Log($"Reached Toy {t.name}");
 			usingEquipment = true;
 			animator.SetBool("Playing", true);
 			timer = t.UseTime;
@@ -352,6 +355,7 @@ public class Animal : MonoBehaviour
 		Debug.Log($"Food Check: <color={(roll < foodCheck ? "red" : "green")}>{roll}/{foodCheck}</color>");
 		if (roll < foodCheck && GameManager.Instance.TryGetFoodBowl(out FoodBowl bowl))
 		{
+			agent.destination = equipmentInUse.InteractLocation.position;
 			equipmentInUse = bowl;
 			agent.SetDestination(equipmentInUse.InteractLocation.position);
 			return Behaviours.Eating;
@@ -364,6 +368,7 @@ public class Animal : MonoBehaviour
 			Debug.Log($"Bladder Check: <color={(roll < bladderCheck ? "red" : "green")}>{roll}/{bladderCheck}</color>");
 			if (roll < bladderCheck && GameManager.Instance.TryGetLitterTray(out LitterTray tray))
 			{
+				Debug.Log($"{name} is attempting to poop");
 				equipmentInUse = tray;
 				agent.SetDestination(equipmentInUse.InteractLocation.position);
 				return Behaviours.Pooping;
