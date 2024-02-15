@@ -6,13 +6,13 @@ using UnityEngine.AI;
 
 public class Animal : MonoBehaviour
 {
-	enum Behaviour { Idle, Eating, Playing, Sleeping, SleepingInPlace, Pooping, PoopingInPlace }
+	enum Behaviours { Idle, Eating, Playing, Sleeping, SleepingInPlace, Pooping, PoopingInPlace }
 
 	private NavMeshAgent agent;
 	private SpriteRenderer spriteRenderer;
 	private Animator animator;
 
-	private Behaviour behaviour = Behaviour.Idle;
+	private Behaviours behaviour = Behaviours.Idle;
 	float baseValue;
 
 	// Needs
@@ -110,9 +110,20 @@ public class Animal : MonoBehaviour
 		}
 	}
 
+	private Behaviours Behaviour
+	{
+		get { return behaviour; }
+		set
+		{
+			Debug.Log($"Behaviour changing to {value}");
+			behaviour = value;
+		}
+	}
+
 	// Start is called before the first frame update
 	void Start()
 	{
+		// Get components
 		agent = GetComponent<NavMeshAgent>();
 		spriteRenderer = transform.GetChild(0).GetComponent<SpriteRenderer>();
 		animator = transform.GetChild(0).GetComponent<Animator>();
@@ -124,7 +135,7 @@ public class Animal : MonoBehaviour
 		}
 		timer = Random.Range(timeBetweenMovements.x, timeBetweenMovements.y);
 
-		// Initialize needs
+		// Initialize needs (between 0.25 and 0.75)
 		Food = 0.25f + (Random.value * 0.5f);
 		Entertainment = 0.25f + (Random.value * 0.5f);
 		Attention = 0.25f + (Random.value * 0.5f);
@@ -136,57 +147,67 @@ public class Animal : MonoBehaviour
 	// Update is called once per frame
 	void Update()
 	{
-		switch (behaviour)
+		// State machine
+		switch (Behaviour)
 		{
-			case Behaviour.Idle:
+			case Behaviours.Idle:
 				ActionIdle();
 				break;
-			case Behaviour.Eating:
+			case Behaviours.Eating:
 				ActionEat();
 				break;
-			case Behaviour.Playing:
+			case Behaviours.Playing:
 				ActionPlay();
 				break;
-			case Behaviour.Sleeping:
+			case Behaviours.Sleeping:
 				ActionSleep();
 				break;
-			case Behaviour.Pooping:
+			case Behaviours.Pooping:
 				ActionPoop();
 				break;
-			case Behaviour.SleepingInPlace:
+			case Behaviours.SleepingInPlace:
 				break;
-			case Behaviour.PoopingInPlace:
+			case Behaviours.PoopingInPlace:
 				break;
 			default:
 				break;
 		}
+		// Manage needs
 		DecrementNeeds();
+		// Set sprite variables
+		animator.SetFloat("MoveSpeed", agent.velocity.magnitude);
+		spriteRenderer.flipX = transform.position.x > agent.destination.x;
 	}
 
-	void ActionIdle()
+	public (float food, float entertainment, float attention, float sleep, float bladder, float grooming) GetStats()
+		=> (Food, Entertainment, Attention, Sleep, Bladder, Grooming);
+
+	private void ActionIdle()
 	{
+		Debug.Log("Idling");
+		Debug.Log(Vector3.Distance(agent.destination, transform.position));
 		// If not at destination, return
 		if (Vector3.Distance(agent.destination, transform.position) > 0.1f) return;
 
+		Debug.Log("Idling2");
+		// Animal is at destination and is idling.
 		// Decrease idle timer. Return while above 0
 		timer -= Time.deltaTime;
 		if (timer > 0) return;
 
 		// When the idle timer reaches 0, choose what to do.
-		behaviour = ChooseBehaviour();
+		Behaviour = ChooseBehaviour();
 	}
 
-	void ActionPoop()
+	private void ActionPoop()
 	{
-		Debug.Log($"{name} is attempting to poop");
-		// Walk to equipment
+		// Don't do anything until the animal has reached it's destination
 		if (Vector3.Distance(transform.position, agent.destination) >= 0.1f) return;
 
-		// Cache equipment
-		LitterTray lt = equipmentInUse as LitterTray;
-
 		// On reach destination
-		if (usingEquipment == false)
+		// Cache the equipment in use
+		LitterTray lt = equipmentInUse as LitterTray;
+		if (!usingEquipment)
 		{
 			usingEquipment = true;
 			animator.SetBool("Pooping", true);
@@ -194,26 +215,27 @@ public class Animal : MonoBehaviour
 			return;
 		}
 
+		// Equipment being used. Wait UseTime seconds
 		timer -= Time.deltaTime;
 		if (timer > 0) return;
 
 		// On wait time finished
+		// Improve need
 		Bladder += lt.Use();
-		animator.SetBool("Eating", false);
+
+		animator.SetBool("Pooping", false);
 		BeginIdle();
 	}
 
-	void ActionEat()
+	private void ActionEat()
 	{
-		Debug.Log($"{name} is attempting to eat");
-		// Walk to equipment
+		// Don't do anything until the animal has reached it's destination
 		if (Vector3.Distance(transform.position, agent.destination) >= 0.1f) return;
 
+		// On reach destination
 		// Cache equipment
 		FoodBowl fb = equipmentInUse as FoodBowl;
-
-		// On reach destination
-		if (usingEquipment == false)
+		if (!usingEquipment)
 		{
 			usingEquipment = true;
 			animator.SetBool("Eating", true);
@@ -221,10 +243,12 @@ public class Animal : MonoBehaviour
 			return;
 		}
 
+		// Equipment being used. Wait UseTime seconds
 		timer -= Time.deltaTime;
 		if (timer > 0) return;
 
 		// On wait time finished
+		// Improve need
 		Food += fb.Use();
 		// If no more uses or would overfill, leave
 		if (!fb.Usable || Food + fb.FoodReward > 1)
@@ -232,21 +256,23 @@ public class Animal : MonoBehaviour
 			usingEquipment = false;
 			animator.SetBool("Eating", false);
 			BeginIdle();
-			return;
 		}
-		timer = fb.UseTime;
+		else
+		{
+			// Eat again
+			timer = fb.UseTime;
+		}
 	}
 
-	void ActionPlay()
+	private void ActionPlay()
 	{
-		Debug.Log($"{name} is attempting to play");
+		// Don't do anything until the animal has reached it's destination
 		if (Vector3.Distance(transform.position, agent.destination) >= 0.1f) return;
 
+		// On reach destination
 		// Cache equipment
 		Toy t = equipmentInUse as Toy;
-
-		// On reach destination
-		if (usingEquipment == false)
+		if (!usingEquipment)
 		{
 			usingEquipment = true;
 			animator.SetBool("Playing", true);
@@ -254,31 +280,34 @@ public class Animal : MonoBehaviour
 			return;
 		}
 
+		// Equipment being used. Wait UseTime seconds
 		timer -= Time.deltaTime;
 		Entertainment += t.EntertainmentReward * Time.deltaTime;
 		if (timer > 0) return;
 
 		// On wait time finished, roll to stop playing
-		if (Random.value < 1 - Entertainment + 0.1f)
+		float stopPlayRoll = Random.value;
+		Debug.Log($"Ending play roll: {stopPlayRoll}/{Entertainment - 0.3f}");
+		if (stopPlayRoll < Entertainment - 0.3f)
 		{
 			usingEquipment = false;
 			animator.SetBool("Playing", false);
 			BeginIdle();
+			Debug.Log("Ending play");
 			return;
 		}
 		timer = t.UseTime;
 	}
 
-	void ActionSleep()
+	private void ActionSleep()
 	{
-		Debug.Log($"{name} is attempting to sleep");
 		if (Vector3.Distance(transform.position, agent.destination) >= 0.1f) return;
 
 		// Cache equipment
 		Bed b = equipmentInUse as Bed;
 
 		// On reach destination
-		if (usingEquipment == false)
+		if (!usingEquipment)
 		{
 			usingEquipment = true;
 			animator.SetBool("Sleeping", true);
@@ -291,7 +320,9 @@ public class Animal : MonoBehaviour
 		if (timer > 0) return;
 
 		// On wait time finished, roll to stop sleeping
-		if (Random.value < Entertainment - 0.1f)
+		float stopSleepRoll = Random.value;
+		Debug.Log($"Ending sleep roll: {stopSleepRoll}/{Sleep - 0.1f}");
+		if (stopSleepRoll < Sleep - 0.1f)
 		{
 			usingEquipment = false;
 			animator.SetBool("Sleeping", false);
@@ -301,98 +332,98 @@ public class Animal : MonoBehaviour
 		timer = b.UseTime;
 	}
 
-	void BeginIdle()
+	private void BeginIdle()
 	{
 		if (equipmentInUse != null)
 		{
 			GameManager.Instance.ReturnEquipment(equipmentInUse);
 			equipmentInUse = null;
 		}
-		behaviour = Behaviour.Idle;
+		FindNewWanderLocation();
+		Behaviour = Behaviours.Idle;
 	}
 
-	Behaviour ChooseBehaviour()
+	private Behaviours ChooseBehaviour()
 	{
-		float foodCheck = Food > 0.5f ? 0 : Mathf.Lerp(1f, 0.3f, Food * 2);
+		// Using one roll for the whole check (could be split into multiple)
 		float roll = Random.value;
+		// Piecewise function to determine chance of attempt
+		float foodCheck = Food < 0.5f ? 1f - (1.4f * Food) : 0;
 		Debug.Log($"Food Check: <color={(roll < foodCheck ? "red" : "green")}>{roll}/{foodCheck}</color>");
 		if (roll < foodCheck && GameManager.Instance.TryGetFoodBowl(out FoodBowl bowl))
 		{
 			equipmentInUse = bowl;
-			agent.destination = equipmentInUse.InteractLocation.position;
-			return Behaviour.Eating;
+			agent.SetDestination(equipmentInUse.InteractLocation.position);
+			return Behaviours.Eating;
 		}
 
 		if (Bladder > 0)
 		{
-			float bladderCheck = Bladder > 0.6f ? 0 : Mathf.Lerp(1f, 0.2f, Bladder * 1.67f);
-			roll = Random.value;
+			// Piecewise function to determine chance of attempt
+			float bladderCheck = Bladder < 0.6f ? 1 - (1.5f * Bladder) : 0;
 			Debug.Log($"Bladder Check: <color={(roll < bladderCheck ? "red" : "green")}>{roll}/{bladderCheck}</color>");
 			if (roll < bladderCheck && GameManager.Instance.TryGetLitterTray(out LitterTray tray))
 			{
 				equipmentInUse = tray;
-				agent.destination = equipmentInUse.InteractLocation.position;
-				return Behaviour.Pooping;
+				agent.SetDestination(equipmentInUse.InteractLocation.position);
+				return Behaviours.Pooping;
 			}
 		}
 		else
 		{
 			Debug.Log("Bladder empty - pooping on floor");
 			// Poop on floor
-			return Behaviour.PoopingInPlace;
+			return Behaviours.PoopingInPlace;
 		}
 
 
 		switch (Sleep)
 		{
-			case float s when s <= 0.1f:
-				float sleepCheck = Mathf.Lerp(1f, 0.8f, Bladder * 10f);
-				roll = Random.value;
+			case float and <= 0.1f:
+				float sleepCheck = 1f - (2f * Sleep);
 				Debug.Log($"Sleep Check (<0.1): <color={(roll < sleepCheck ? "red" : "green")}>{roll}/{sleepCheck}</color>");
 				if (roll >= sleepCheck) break;
 
 				if (GameManager.Instance.TryGetBed(out Bed bed))
 				{
-					Debug.Log($"Sleepin in bed {bed.name}");
+					Debug.Log($"Sleeping in bed {bed.name}");
 					equipmentInUse = bed;
-					agent.destination = equipmentInUse.InteractLocation.position;
-					return Behaviour.Sleeping;
+					agent.SetDestination(equipmentInUse.InteractLocation.position);
+					return Behaviours.Sleeping;
 				}
 				else
 				{
 					Debug.Log("No beds, sleeping on floor");
-					return Behaviour.SleepingInPlace;
+					return Behaviours.SleepingInPlace;
 				}
-			case float s when s <= 0.8f:
-				sleepCheck = Mathf.Lerp(1f, 0.1f, (Bladder - 0.1f) * 1.43f);
-				roll = Random.value;
+			case float and <= 0.8f:
+				sleepCheck = 1.13f - (1.3f * Sleep);
 				Debug.Log($"Sleep Check (<0.8): <color={(roll < sleepCheck ? "red" : "green")}>{roll}/{sleepCheck}</color>");
 				if (roll >= sleepCheck) break;
 
 				if (GameManager.Instance.TryGetBed(out bed))
 				{
-					Debug.Log($"Sleepin in bed {bed.name}");
+					Debug.Log($"Sleeping in bed {bed.name}");
 					equipmentInUse = bed;
-					agent.destination = equipmentInUse.InteractLocation.position;
-					return Behaviour.Sleeping;
+					agent.SetDestination(equipmentInUse.InteractLocation.position);
+					return Behaviours.Sleeping;
 				}
 				break;
 		}
 
-		float entertainmentCheck = Mathf.Lerp(0.1f, 1f, Entertainment);
-		roll = Random.value;
+		float entertainmentCheck = 1 - (0.9f * entertainment);
 		Debug.Log($"Entertainment Check: <color={(roll < entertainmentCheck ? "red" : "green")}>{roll}/{entertainmentCheck}</color>");
 		if (roll < entertainmentCheck && GameManager.Instance.TryGetToy(out Toy toy))
 		{
 			equipmentInUse = toy;
-			agent.destination = equipmentInUse.InteractLocation.position;
-			return Behaviour.Playing;
+			agent.SetDestination(equipmentInUse.InteractLocation.position);
+			return Behaviours.Playing;
 		}
 
 		Debug.Log("No matches, wandering");
 		// No behaviours chosen, choose a new spot to nav to
 		FindNewWanderLocation();
-		return Behaviour.Idle;
+		return Behaviours.Idle;
 	}
 
 	void FindNewWanderLocation()
@@ -404,9 +435,7 @@ public class Animal : MonoBehaviour
 
 		if (NavMesh.SamplePosition(newDest, out NavMeshHit hit, 1.0f, NavMesh.AllAreas))
 		{
-			agent.destination = hit.position;
-
-			spriteRenderer.flipX = transform.position.x > hit.position.x;
+			agent.SetDestination(hit.position);
 
 			// Reset timer
 			timer = Random.Range(timeBetweenMovements.x, timeBetweenMovements.y);

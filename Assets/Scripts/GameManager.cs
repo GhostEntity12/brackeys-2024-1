@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class GameManager : Singleton<GameManager>
 {
@@ -15,10 +16,14 @@ public class GameManager : Singleton<GameManager>
 	[SerializeField] private List<LitterTray> allLitterTrays;
 	[SerializeField] private List<Toy> allToys;
 
+	[SerializeField] NeedsWindow needsWindow;
+
 	private Queue<Bed> AvailableBeds;
 	private Queue<FoodBowl> AvailableFoodbowls;
 	private Queue<LitterTray> AvailableLitterTrays;
 	private Queue<Toy> AvailableToys;
+
+	private Camera c;
 
 	private void Start()
 	{
@@ -28,13 +33,27 @@ public class GameManager : Singleton<GameManager>
 		AvailableFoodbowls = new Queue<FoodBowl>(allFoodbowls);
 		AvailableLitterTrays = new Queue<LitterTray>(allLitterTrays);
 		AvailableToys = new Queue<Toy>(allToys);
+		c = Camera.main;
 	}
 
-	// Update is called once per frame
-	void Update()
+	private void Update()
 	{
-
+		if (Input.GetMouseButtonDown(0))
+		{
+			Debug.Log(EventSystem.current.IsPointerOverGameObject());
+			if (Physics.Raycast(c.ScreenPointToRay(Input.mousePosition), out RaycastHit hit, 100f, 1 << 6) &&
+				hit.transform.TryGetComponent(out Animal a))
+			{
+				needsWindow.Show(a);
+			}
+			else if (!EventSystem.current.IsPointerOverGameObject())
+			{
+				needsWindow.Hide();
+			}
+		}
 	}
+
+	public void ShowWindow(Animal a) => needsWindow.Show(a);
 
 	public bool TryGetFoodBowl(out FoodBowl foodBowl)
 	{

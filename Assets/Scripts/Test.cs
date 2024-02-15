@@ -5,17 +5,16 @@ using UnityEngine.U2D;
 
 public class Test : MonoBehaviour
 {
-	[Range(0, 15)]
-	public int index = 0;
-	public SpriteAtlas atlas;
-	SpriteRenderer spriteRenderer;
+	[Range(0f, 1f)]
+	public float value = 0;
+	NeedBar bar;
 	private void Start()
 	{
-		spriteRenderer= GetComponent<SpriteRenderer>();
+		bar = GetComponent<NeedBar>();
 	}
 
 	private void Update()
 	{
-		spriteRenderer.sprite = atlas.GetSprite("TileTest_" + index);
+		bar.FillAmount = value;
 	}
 }
