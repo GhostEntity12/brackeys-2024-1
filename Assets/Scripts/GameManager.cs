@@ -1,9 +1,27 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.U2D;
 
 public class GameManager : Singleton<GameManager>
 {
+	List<Animal> animals = new();
+
+	[SerializeField] Animal animalPrefab;
+
+	[SerializeField] Gacha gachaScreen;
+
+	// Replace this with Serializables
+	[SerializeField] List<SpriteAtlas> animalSprites;
+	[SerializeField] List<AnimalInfo> animalInfos;
+
+	private Queue<Bed> availableBeds = new();
+	private Queue<FoodBowl> availableFoodbowls = new();
+	private Queue<LitterTray> availableLitterTrays = new();
+	private Queue<Toy> availableToys = new();
+
+	[Header("Global Modifiers")]
 	public float GlobalFoodDecayModifier = 1;
 	public float GlobalEntertainmentDecayModifier = 1;
 	public float GlobalAttentionDecayModifier = 1;
@@ -11,94 +29,113 @@ public class GameManager : Singleton<GameManager>
 	public float GlobalBladderDecayModifier = 1;
 	public float GlobalGroomingDecayModifier = 1;
 
-	[SerializeField] private List<Bed> allBeds;
-	[SerializeField] private List<FoodBowl> allFoodbowls;
-	[SerializeField] private List<LitterTray> allLitterTrays;
-	[SerializeField] private List<Toy> allToys;
-
-	[SerializeField] NeedsWindow needsWindow;
-
-	private Queue<Bed> AvailableBeds;
-	private Queue<FoodBowl> AvailableFoodbowls;
-	private Queue<LitterTray> AvailableLitterTrays;
-	private Queue<Toy> AvailableToys;
-
-	private Camera c;
-	List<Animal> animals = new();
-
-	//List<>
+	public readonly List<string> names = new()
+	{
+		"Fido",
+		"Oreo",
+		"Cookie",
+		"Fluffy",
+		"Patches",
+		"Leo",
+		"Goldie",
+		"Raymond",
+		"Kirby",
+		"Princess",
+		"Doggo",
+		"Benji",
+		"Eevee",
+		"Lady",
+		"Floof",
+		"Luna",
+		"Max",
+		"Milo",
+		"Lola",
+		"Artemis",
+		"Freya",
+		"Angel",
+		"Ghost",
+		"Marshmallow",
+		"Snowy",
+		"Sunny",
+		"Casper",
+		"Daisy",
+		"Jelly Bean",
+		"Chibi",
+		"Chocolate",
+		"Mocha",
+		"Midnight",
+		"Nibbles",
+		"Charlie",
+		"Pickle",
+		"Fifi",
+		"Snoodle",
+		"Bella",
+		"Monty",
+		"Alfie",
+		"Ralph",
+		"Penny",
+		"Rosie",
+		"Rocky",
+		"Nala",
+		"Wraccoon",
+		"Buddy",
+		"Bear",
+		"Duke",
+		"Thor",
+		"Brock"
+	};
 
 	private void Start()
 	{
 		Application.targetFrameRate = 100;
 
-		AvailableBeds = new Queue<Bed>(allBeds);
-		AvailableFoodbowls = new Queue<FoodBowl>(allFoodbowls);
-		AvailableLitterTrays = new Queue<LitterTray>(allLitterTrays);
-		AvailableToys = new Queue<Toy>(allToys);
-		c = Camera.main;
+		// Make equipment available
+		FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None).OfType<IEquipment>().ToList().ForEach(e => ReturnEquipment(e));
 	}
 
 	private void Update()
 	{
-		if (Input.GetMouseButtonDown(0))
+		if (Input.GetKeyDown(KeyCode.T))
 		{
-			if (Physics.Raycast(c.ScreenPointToRay(Input.mousePosition), out RaycastHit hit, 100f, 1 << 6) &&
-				hit.transform.TryGetComponent(out Animal a))
-			{
-				needsWindow.Show(a);
-			}
-			else if (!EventSystem.current.IsPointerOverGameObject())
-			{
-				needsWindow.Hide();
-			}
+			gachaScreen.Setup(ChooseNewAnimal());
 		}
 	}
-
-	public void ShowWindow(Animal a) => needsWindow.Show(a);
 
 	public bool TryGetFoodBowl(out FoodBowl foodBowl)
 	{
 		foodBowl = null;
-		if (AvailableFoodbowls.Count == 0) return false;
+		if (availableFoodbowls.Count == 0) return false;
 
-		{
-			foodBowl = AvailableFoodbowls.Dequeue();
-			return true;
-		}
+		foodBowl = availableFoodbowls.Dequeue();
+		return true;
+
 	}
 
 	public bool TryGetLitterTray(out LitterTray litterTray)
 	{
 		litterTray = null;
-		if (AvailableLitterTrays.Count == 0) return false;
-		else
-		{
-			litterTray = AvailableLitterTrays.Dequeue();
-			return true;
-		}
+		if (availableLitterTrays.Count == 0) return false;
+
+		litterTray = availableLitterTrays.Dequeue();
+		return true;
 	}
 
 	public bool TryGetBed(out Bed bed)
 	{
 		bed = null;
-		if (AvailableBeds.Count == 0) return false;
-		else
-		{
-			bed = AvailableBeds.Dequeue();
-			return true;
-		}
+		if (availableBeds.Count == 0) return false;
+
+		bed = availableBeds.Dequeue();
+		return true;
 	}
 
 	public bool TryGetToy(out Toy toy)
 	{
 		toy = null;
-		if (AvailableBeds.Count == 0) return false;
-		else
-		{
-			toy = AvailableToys.Dequeue();
-			return true;
-		}
+		if (availableBeds.Count == 0) return false;
+		
+		toy = availableToys.Dequeue();
+		return true;
 	}
 
 	public void ReturnEquipment(IEquipment equipment)
@@ -106,52 +143,72 @@ public class GameManager : Singleton<GameManager>
 		switch (equipment)
 		{
 			case Bed b:
-				AvailableBeds.Enqueue(b);
+				availableBeds.Enqueue(b);
 				break;
 			case FoodBowl fb:
 				if (fb.Usable)
-					AvailableFoodbowls.Enqueue(fb);
+					availableFoodbowls.Enqueue(fb);
 				break;
 			case LitterTray lt:
 				if (lt.Usable)
-					AvailableLitterTrays.Enqueue(lt);
+					availableLitterTrays.Enqueue(lt);
 				break;
 			case Toy t:
-				AvailableToys.Enqueue(t);
+				availableToys.Enqueue(t);
 				break;
 			default:
-				Debug.LogError("Unkown Equipment type");
+				Debug.LogError("Unknown Equipment type");
 				break;
 
 		}
 	}
 
-	public void ChooseNewAnimal(AnimalInfo.Rarities? rarity = null)
-	{
-		// If no chosen rarity, choose
-		if (rarity == null)
-		{
-			float roll = Random.value;
-			rarity =
-				roll < 0.01f ? AnimalInfo.Rarities.Legendary :
-				roll < 0.11f ? AnimalInfo.Rarities.Legendary :
-				roll < 0.31f ? AnimalInfo.Rarities.Rare :
-				roll < 0.61f ? AnimalInfo.Rarities.Uncommon :
-				AnimalInfo.Rarities.Common;
-		}
+	//public void ChooseNewAnimal(AnimalInfo.Rarities? rarity = null)
+	//{
+	//	// If no chosen rarity, choose
+	//	if (rarity == null)
+	//	{
+	//		float roll = Random.value;
+	//		rarity =
+	//			roll < 0.01f ? AnimalInfo.Rarities.Mythic :
+	//			roll < 0.11f ? AnimalInfo.Rarities.Legendary :
+	//			roll < 0.31f ? AnimalInfo.Rarities.Rare :
+	//			roll < 0.61f ? AnimalInfo.Rarities.Uncommon :
+	//			AnimalInfo.Rarities.Common;
+	//	}
 
-		switch (rarity)
+	//	switch (rarity)
+	//	{
+	//		case AnimalInfo.Rarities.Common:
+	//			break;
+	//		case AnimalInfo.Rarities.Uncommon:
+	//			break;
+	//		case AnimalInfo.Rarities.Rare:
+	//			break;
+	//		case AnimalInfo.Rarities.Legendary:
+	//			break;
+	//		case AnimalInfo.Rarities.Mythic:
+	//			break;
+	//	}
+	//}
+
+	public AnimalInfo ChooseNewAnimal()
+	{
+		return new AnimalInfo(names[Random.Range(0, names.Count)], animalSprites[Random.Range(0, animalSprites.Count)].name);
+	}
+
+	public SpriteAtlas GetSpriteAtlasByName(string name)
+	{
+		foreach (SpriteAtlas atlas in animalSprites)
 		{
-			case AnimalInfo.Rarities.Common:
-				break;
-			case AnimalInfo.Rarities.Uncommon:
-				break;
-			case AnimalInfo.Rarities.Rare:
-				break;
-			case AnimalInfo.Rarities.Legendary:
-				break;
-			case AnimalInfo.Rarities.Mythic:
-				break;
+			if (atlas.name == name) return atlas;
 		}
+		return null;
+	}
+
+	public void SpawnAnimal(AnimalInfo info)
+	{
+		Animal a = Instantiate(animalPrefab);
+		a.SetInfo(info);
 	}
 }
