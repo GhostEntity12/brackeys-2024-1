@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.VisualScripting;
@@ -12,7 +11,7 @@ public class AnimalInfo
 	public enum Rarities { Common, Uncommon, Rare, Legendary, Mythic }
 
 	public string name;
-	public string spriteAtlas;
+	public string spriteAtlasName;
 	public List<Attributes> attributes = new();
 
 	// Modifiers
@@ -37,7 +36,7 @@ public class AnimalInfo
 	public AnimalInfo(string name, string spriteAtlas)
 	{
 		this.name = name;
-		this.spriteAtlas = spriteAtlas;
+		spriteAtlasName = spriteAtlas;
 
 		int attributeCount = Random.value switch
 		{

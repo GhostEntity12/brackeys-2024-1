@@ -24,4 +24,6 @@ public class SpritesheetAnimator : MonoBehaviour
 			spriteRenderer.sprite = atlas.GetSprite($"Spr_{atlas.name}_{spriteIndex}");
 		}
 	}
+
+	public void SetSpritesheet(string name) => atlas = GameManager.Instance.GetSpriteAtlasByName(name);
 }

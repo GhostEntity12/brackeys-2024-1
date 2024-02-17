@@ -7,14 +7,13 @@ public class Animal : MonoBehaviour
 
 	private NavMeshAgent agent;
 	private SpriteRenderer spriteRenderer;
+	private SpritesheetAnimator spritesheetAnimator;
 	private Animator animator;
 
 	private Behaviours behaviour = Behaviours.Idle;
 	float baseValue;
 
 	private AnimalInfo animalInfo;
-
-	[SerializeField] private Vector2 timeBetweenMovements = new(2, 8);
 	[SerializeField] private float wanderRadius = 3;
 
 	private float timer;
@@ -107,15 +106,14 @@ public class Animal : MonoBehaviour
 	{
 		// Get components
 		agent = GetComponent<NavMeshAgent>();
-		spriteRenderer = transform.GetChild(0).GetComponent<SpriteRenderer>();
-		animator = transform.GetChild(0).GetComponent<Animator>();
-
-		// Flip V2 if values are in wrong order
-		if (timeBetweenMovements.x > timeBetweenMovements.y)
-		{
-			(timeBetweenMovements.y, timeBetweenMovements.x) = (timeBetweenMovements.x, timeBetweenMovements.y);
-		}
-		timer = Random.Range(timeBetweenMovements.x, timeBetweenMovements.y);
+		Transform spriteTransform = transform.GetChild(0);
+		spriteRenderer = spriteTransform.GetComponent<SpriteRenderer>();
+		spritesheetAnimator = spriteTransform.GetComponent<SpritesheetAnimator>();
+		animator = spriteTransform.GetComponent<Animator>();
+		timer = Random.Range(animalInfo.timeBetweenMovements.x, animalInfo.timeBetweenMovements.y);
+		
+		name = animalInfo.name;
+		spritesheetAnimator.SetSpritesheet(animalInfo.spriteAtlasName);
 	}
 
 	// Update is called once per frame
@@ -429,7 +427,7 @@ public class Animal : MonoBehaviour
 			agent.SetDestination(hit.position);
 
 			// Reset timer
-			timer = Random.Range(timeBetweenMovements.x, timeBetweenMovements.y);
+			timer = Random.Range(animalInfo.timeBetweenMovements.x, animalInfo.timeBetweenMovements.y);
 		}
 	}
 

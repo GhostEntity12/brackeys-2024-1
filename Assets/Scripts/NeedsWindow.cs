@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class NeedsWindow : MonoBehaviour
@@ -24,6 +25,19 @@ public class NeedsWindow : MonoBehaviour
 	// Update is called once per frame
 	void Update()
 	{
+		if (Input.GetMouseButtonDown(0))
+		{
+			if (Physics.Raycast(c.ScreenPointToRay(Input.mousePosition), out RaycastHit hit, 100f, 1 << 6) &&
+				hit.transform.TryGetComponent(out Animal a))
+			{
+				Show(a);
+			}
+			else if (!EventSystem.current.IsPointerOverGameObject())
+			{
+				Hide();
+			}
+		}
+
 		if (animal)
 		{
 			rectTransform.position = c.WorldToScreenPoint(animal.transform.position + Vector3.up * 2);
