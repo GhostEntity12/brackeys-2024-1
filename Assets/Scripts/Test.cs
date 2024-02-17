@@ -5,16 +5,18 @@ using UnityEngine.U2D;
 
 public class Test : MonoBehaviour
 {
-	[Range(0f, 1f)]
-	public float value = 0;
-	NeedBar bar;
-	private void Start()
-	{
-		bar = GetComponent<NeedBar>();
-	}
+	public AnimalInfo a;
+	public AnimalInfo ab;
+
+	public string j;
 
 	private void Update()
 	{
-		bar.FillAmount = value;
+		if (Input.GetKeyDown(KeyCode.M))
+		{
+			a = GameManager.Instance.ChooseNewAnimal();
+			j = JsonUtility.ToJson(a);
+			ab = JsonUtility.FromJson<AnimalInfo>(j);
+		}
 	}
 }

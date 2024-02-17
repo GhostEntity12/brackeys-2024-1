@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.U2D;
 
 public class GameManager : Singleton<GameManager>
 {
@@ -25,8 +26,65 @@ public class GameManager : Singleton<GameManager>
 
 	private Camera c;
 	List<Animal> animals = new();
+	public List<string> names = new()
+	{
+		"Fido",
+		"Oreo",
+		"Cookie",
+		"Fluffy",
+		"Patches",
+		"Leo",
+		"Goldie",
+		"Raymond",
+		"Kirby",
+		"Princess",
+		"Doggo",
+		"Benji",
+		"Eevee",
+		"Lady",
+		"Floof",
+		"Luna",
+		"Max",
+		"Milo",
+		"Lola",
+		"Artemis",
+		"Freya",
+		"Angel",
+		"Ghost",
+		"Marshmallow",
+		"Snowy",
+		"Sunny",
+		"Casper",
+		"Daisy",
+		"Jelly Bean",
+		"Chibi",
+		"Chocolate",
+		"Mocha",
+		"Midnight",
+		"Nibbles",
+		"Charlie",
+		"Pickle",
+		"Fifi",
+		"Snoodle",
+		"Bella",
+		"Monty",
+		"Alfie",
+		"Ralph",
+		"Penny",
+		"Rosie",
+		"Rocky",
+		"Nala",
+		"Wraccoon",
+		"Buddy",
+		"Bear",
+		"Duke",
+		"Thor",
+		"Brock"
+	};
 
 	//List<>
+	[SerializeField] List<SpriteAtlas> animalSprites;
+	[SerializeField] List<AnimalInfo> animalInfos;
 
 	private void Start()
 	{
@@ -126,32 +184,52 @@ public class GameManager : Singleton<GameManager>
 		}
 	}
 
-	public void ChooseNewAnimal(AnimalInfo.Rarities? rarity = null)
-	{
-		// If no chosen rarity, choose
-		if (rarity == null)
-		{
-			float roll = Random.value;
-			rarity =
-				roll < 0.01f ? AnimalInfo.Rarities.Legendary :
-				roll < 0.11f ? AnimalInfo.Rarities.Legendary :
-				roll < 0.31f ? AnimalInfo.Rarities.Rare :
-				roll < 0.61f ? AnimalInfo.Rarities.Uncommon :
-				AnimalInfo.Rarities.Common;
-		}
+	//public void ChooseNewAnimal(AnimalInfo.Rarities? rarity = null)
+	//{
+	//	// If no chosen rarity, choose
+	//	if (rarity == null)
+	//	{
+	//		float roll = Random.value;
+	//		rarity =
+	//			roll < 0.01f ? AnimalInfo.Rarities.Mythic :
+	//			roll < 0.11f ? AnimalInfo.Rarities.Legendary :
+	//			roll < 0.31f ? AnimalInfo.Rarities.Rare :
+	//			roll < 0.61f ? AnimalInfo.Rarities.Uncommon :
+	//			AnimalInfo.Rarities.Common;
+	//	}
 
-		switch (rarity)
+	//	switch (rarity)
+	//	{
+	//		case AnimalInfo.Rarities.Common:
+	//			break;
+	//		case AnimalInfo.Rarities.Uncommon:
+	//			break;
+	//		case AnimalInfo.Rarities.Rare:
+	//			break;
+	//		case AnimalInfo.Rarities.Legendary:
+	//			break;
+	//		case AnimalInfo.Rarities.Mythic:
+	//			break;
+	//	}
+	//}
+
+	public AnimalInfo ChooseNewAnimal()
+	{
+		return new AnimalInfo(names[Random.Range(0, names.Count)], animalSprites[Random.Range(0, animalSprites.Count)].name);
+	}
+
+	public SpriteAtlas GetSpriteAtlasByName(string name)
+	{
+		foreach (SpriteAtlas atlas in animalSprites)
 		{
-			case AnimalInfo.Rarities.Common:
-				break;
-			case AnimalInfo.Rarities.Uncommon:
-				break;
-			case AnimalInfo.Rarities.Rare:
-				break;
-			case AnimalInfo.Rarities.Legendary:
-				break;
-			case AnimalInfo.Rarities.Mythic:
-				break;
+			if (atlas.name == name) return atlas;
 		}
+		return null;
+	}
+
+	[ContextMenu("JsonTest")]
+	public void TestJson()
+	{
+		Debug.Log(ChooseNewAnimal().ToJson());
 	}
 }

@@ -10,23 +10,9 @@ public class Animal : MonoBehaviour
 	private Animator animator;
 
 	private Behaviours behaviour = Behaviours.Idle;
-	private AnimalInfo.Attributes attributes;
 	float baseValue;
 
-	// Needs
-	private float foodDecayRate = 0.001f;
-	private float entertainmentDecayRate = 0.001f;
-	private float attentionDecayRate = 0.001f;
-	private float sleepDecayRate = 0.001f;
-	private float bladderDecayRate = 0.001f;
-	private float groomingDecayRate = 0.001f;
-	
-	private float food;
-	private float entertainment;
-	private float attention;
-	private float sleep;
-	private float bladder;
-	private float grooming;
+	private AnimalInfo animalInfo;
 
 	[SerializeField] private Vector2 timeBetweenMovements = new(2, 8);
 	[SerializeField] private float wanderRadius = 3;
@@ -41,66 +27,66 @@ public class Animal : MonoBehaviour
 	{
 		get
 		{
-			return food;
+			return animalInfo.food;
 		}
 		set
 		{
-			food = Mathf.Clamp(value, 0, 1);
+			animalInfo.food = Mathf.Clamp(value, 0, 1);
 		}
 	}
 	public float Entertainment
 	{
 		get
 		{
-			return entertainment;
+			return animalInfo.entertainment;
 		}
 		set
 		{
-			entertainment = Mathf.Clamp(value, 0, 1);
+			animalInfo.entertainment = Mathf.Clamp(value, 0, 1);
 		}
 	}
 	public float Attention
 	{
 		get
 		{
-			return attention;
+			return animalInfo.attention;
 		}
 		set
 		{
-			attention = Mathf.Clamp(value, 0, 1);
+			animalInfo.attention = Mathf.Clamp(value, 0, 1);
 		}
 	}
 	public float Sleep
 	{
 		get
 		{
-			return sleep;
+			return animalInfo.sleep;
 		}
 		set
 		{
-			sleep = Mathf.Clamp(value, 0, 1);
+			animalInfo.sleep = Mathf.Clamp(value, 0, 1);
 		}
 	}
 	public float Bladder
 	{
 		get
 		{
-			return bladder;
+			return animalInfo.bladder;
 		}
 		set
 		{
-			bladder = Mathf.Clamp(value, 0, 1);
+			animalInfo.bladder = Mathf.Clamp(value, 0, 1);
 		}
 	}
 	public float Grooming
 	{
 		get
 		{
-			return grooming;
+			return animalInfo.grooming;
 		}
 		set
 		{
-			grooming = Mathf.Clamp(value, 0, 1);
+			animalInfo.grooming = Mathf.Clamp(value, 0, 1);
 		}
 	}
 	public bool CanBePet => petTimer <= 0;
@@ -130,14 +116,6 @@ public class Animal : MonoBehaviour
 			(timeBetweenMovements.y, timeBetweenMovements.x) = (timeBetweenMovements.x, timeBetweenMovements.y);
 		}
 		timer = Random.Range(timeBetweenMovements.x, timeBetweenMovements.y);
-
-		// Initialize needs (between 0.25 and 0.75)
-		Food = 0.25f + (Random.value * 0.5f);
-		Entertainment = 0.25f + (Random.value * 0.5f);
-		Attention = 0.25f + (Random.value * 0.5f);
-		Sleep = 0.25f + (Random.value * 0.5f);
-		Bladder = 0.25f + (Random.value * 0.5f);
-		Grooming = 0.25f + (Random.value * 0.5f);
 	}
 
 	// Update is called once per frame
@@ -345,13 +323,13 @@ public class Animal : MonoBehaviour
 
 	public void Pet()
 	{
-		attention += 0.3f;
+		animalInfo.attention += 0.3f;
 		petTimer = 10f;
 	}
 
 	public void Groom()
 	{
-		grooming += 0.5f;
+		animalInfo.grooming += 0.5f;
 		groomTimer = 30f;
 	}
 
@@ -392,7 +370,7 @@ public class Animal : MonoBehaviour
 
 		switch (Sleep)
 		{
-			case float and <= 0.1f:
+			case <= 0.1f:
 				float sleepCheck = 1f - (2f * Sleep);
 				//Debug.Log($"Sleep Check (<0.1): <color={(roll < sleepCheck ? "red" : "green")}>{roll}/{sleepCheck}</color>");
 				if (roll >= sleepCheck) break;
@@ -409,7 +387,7 @@ public class Animal : MonoBehaviour
 					Debug.Log("No beds, sleeping on floor");
 					return Behaviours.SleepingInPlace;
 				}
-			case float and <= 0.8f:
+			case <= 0.8f:
 				sleepCheck = 1.13f - (1.3f * Sleep);
 				//Debug.Log($"Sleep Check (<0.8): <color={(roll < sleepCheck ? "red" : "green")}>{roll}/{sleepCheck}</color>");
 				if (roll >= sleepCheck) break;
@@ -424,7 +402,7 @@ public class Animal : MonoBehaviour
 				break;
 		}
 
-		float entertainmentCheck = 1 - (0.9f * entertainment);
+		float entertainmentCheck = 1 - (0.9f * animalInfo.entertainment);
 		//Debug.Log($"Entertainment Check: <color={(roll < entertainmentCheck ? "red" : "green")}>{roll}/{entertainmentCheck}</color>");
 		if (roll < entertainmentCheck && GameManager.Instance.TryGetToy(out Toy toy))
 		{
@@ -459,11 +437,11 @@ public class Animal : MonoBehaviour
 	{
 		float entertainmentModifier = Mathf.Lerp(1.5f, 1f, Entertainment * 3.3f);
 
-		Food -= foodDecayRate * entertainmentModifier * GameManager.Instance.GlobalFoodDecayModifier * Time.deltaTime;
-		Attention -= attentionDecayRate * entertainmentModifier * GameManager.Instance.GlobalEntertainmentDecayModifier * Time.deltaTime;
-		Sleep -= sleepDecayRate * entertainmentModifier * GameManager.Instance.GlobalSleepDecayModifier * Time.deltaTime;
-		Bladder -= bladderDecayRate * entertainmentModifier * GameManager.Instance.GlobalBladderDecayModifier * Time.deltaTime;
-		Grooming -= groomingDecayRate * entertainmentModifier * GameManager.Instance.GlobalGroomingDecayModifier * Time.deltaTime;
-		Entertainment -= entertainmentDecayRate * GameManager.Instance.GlobalEntertainmentDecayModifier * Time.deltaTime;
+		Food -= 0.01f * animalInfo.foodMod * entertainmentModifier * GameManager.Instance.GlobalFoodDecayModifier * Time.deltaTime;
+		Attention -= 0.01f * animalInfo.attentionMod * entertainmentModifier * GameManager.Instance.GlobalEntertainmentDecayModifier * Time.deltaTime;
+		Sleep -= 0.01f * animalInfo.sleepMod * entertainmentModifier * GameManager.Instance.GlobalSleepDecayModifier * Time.deltaTime;
+		Bladder -= 0.01f * animalInfo.bladderMod * entertainmentModifier * GameManager.Instance.GlobalBladderDecayModifier * Time.deltaTime;
+		Grooming -= 0.01f * animalInfo.groomingMod * entertainmentModifier * GameManager.Instance.GlobalGroomingDecayModifier * Time.deltaTime;
+		Entertainment -= 0.01f * animalInfo.entertainmentMod * GameManager.Instance.GlobalEntertainmentDecayModifier * Time.deltaTime;
 	}
 }
