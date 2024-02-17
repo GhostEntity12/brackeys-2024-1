@@ -41,7 +41,7 @@ public class NeedsWindow : MonoBehaviour
 		if (animal)
 		{
 			rectTransform.position = c.WorldToScreenPoint(animal.transform.position + Vector3.up * 2);
-			(float food, float entertainment, float attention, float sleep, float bladder, float grooming) = animal.GetStats();
+			(float food, float entertainment, float attention, float sleep, float bladder, float grooming) = animal.Stats;
 			foodBar.FillAmount = food;
 			entertainmentBar.FillAmount = entertainment;
 			attentionBar.FillAmount = attention;

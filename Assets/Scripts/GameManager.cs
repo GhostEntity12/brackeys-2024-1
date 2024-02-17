@@ -8,14 +8,18 @@ public class GameManager : Singleton<GameManager>
 {
 	List<Animal> animals = new();
 
+	[SerializeField] Animal animalPrefab;
+
+	[SerializeField] Gacha gachaScreen;
+
 	// Replace this with Serializables
 	[SerializeField] List<SpriteAtlas> animalSprites;
 	[SerializeField] List<AnimalInfo> animalInfos;
 
-	private Queue<Bed> AvailableBeds;
-	private Queue<FoodBowl> AvailableFoodbowls;
-	private Queue<LitterTray> AvailableLitterTrays;
-	private Queue<Toy> AvailableToys;
+	private Queue<Bed> availableBeds = new();
+	private Queue<FoodBowl> availableFoodbowls = new();
+	private Queue<LitterTray> availableLitterTrays = new();
+	private Queue<Toy> availableToys = new();
 
 	[Header("Global Modifiers")]
 	public float GlobalFoodDecayModifier = 1;
@@ -89,12 +93,20 @@ public class GameManager : Singleton<GameManager>
 		FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None).OfType<IEquipment>().ToList().ForEach(e => ReturnEquipment(e));
 	}
 
+	private void Update()
+	{
+		if (Input.GetKeyDown(KeyCode.T))
+		{
+			gachaScreen.Setup(ChooseNewAnimal());
+		}
+	}
+
 	public bool TryGetFoodBowl(out FoodBowl foodBowl)
 	{
 		foodBowl = null;
-		if (AvailableFoodbowls.Count == 0) return false;
+		if (availableFoodbowls.Count == 0) return false;
 
-		foodBowl = AvailableFoodbowls.Dequeue();
+		foodBowl = availableFoodbowls.Dequeue();
 		return true;
 
 	}
@@ -102,27 +114,27 @@ public class GameManager : Singleton<GameManager>
 	public bool TryGetLitterTray(out LitterTray litterTray)
 	{
 		litterTray = null;
-		if (AvailableLitterTrays.Count == 0) return false;
+		if (availableLitterTrays.Count == 0) return false;
 
-		litterTray = AvailableLitterTrays.Dequeue();
+		litterTray = availableLitterTrays.Dequeue();
 		return true;
 	}
 
 	public bool TryGetBed(out Bed bed)
 	{
 		bed = null;
-		if (AvailableBeds.Count == 0) return false;
+		if (availableBeds.Count == 0) return false;
 
-		bed = AvailableBeds.Dequeue();
+		bed = availableBeds.Dequeue();
 		return true;
 	}
 
 	public bool TryGetToy(out Toy toy)
 	{
 		toy = null;
-		if (AvailableBeds.Count == 0) return false;
+		if (availableBeds.Count == 0) return false;
 		
-		toy = AvailableToys.Dequeue();
+		toy = availableToys.Dequeue();
 		return true;
 	}
 
@@ -131,18 +143,18 @@ public class GameManager : Singleton<GameManager>
 		switch (equipment)
 		{
 			case Bed b:
-				AvailableBeds.Enqueue(b);
+				availableBeds.Enqueue(b);
 				break;
 			case FoodBowl fb:
 				if (fb.Usable)
-					AvailableFoodbowls.Enqueue(fb);
+					availableFoodbowls.Enqueue(fb);
 				break;
 			case LitterTray lt:
 				if (lt.Usable)
-					AvailableLitterTrays.Enqueue(lt);
+					availableLitterTrays.Enqueue(lt);
 				break;
 			case Toy t:
-				AvailableToys.Enqueue(t);
+				availableToys.Enqueue(t);
 				break;
 			default:
 				Debug.LogError("Unknown Equipment type");
@@ -194,9 +206,9 @@ public class GameManager : Singleton<GameManager>
 		return null;
 	}
 
-	[ContextMenu("JsonTest")]
-	public void TestJson()
+	public void SpawnAnimal(AnimalInfo info)
 	{
-		Debug.Log(ChooseNewAnimal().ToJson());
+		Animal a = Instantiate(animalPrefab);
+		a.SetInfo(info);
 	}
 }

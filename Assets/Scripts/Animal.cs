@@ -13,7 +13,6 @@ public class Animal : MonoBehaviour
 	private Behaviours behaviour = Behaviours.Idle;
 	float baseValue;
 
-	private AnimalInfo animalInfo;
 	[SerializeField] private float wanderRadius = 3;
 
 	private float timer;
@@ -22,75 +21,78 @@ public class Animal : MonoBehaviour
 	private bool usingEquipment;
 	IEquipment equipmentInUse = null;
 
+	public AnimalInfo AnimalInfo { get; private set; }
+
 	public float Food
 	{
 		get
 		{
-			return animalInfo.food;
+			return AnimalInfo.food;
 		}
 		set
 		{
-			animalInfo.food = Mathf.Clamp(value, 0, 1);
+			AnimalInfo.food = Mathf.Clamp(value, 0, 1);
 		}
 	}
 	public float Entertainment
 	{
 		get
 		{
-			return animalInfo.entertainment;
+			return AnimalInfo.entertainment;
 		}
 		set
 		{
-			animalInfo.entertainment = Mathf.Clamp(value, 0, 1);
+			AnimalInfo.entertainment = Mathf.Clamp(value, 0, 1);
 		}
 	}
 	public float Attention
 	{
 		get
 		{
-			return animalInfo.attention;
+			return AnimalInfo.attention;
 		}
 		set
 		{
-			animalInfo.attention = Mathf.Clamp(value, 0, 1);
+			AnimalInfo.attention = Mathf.Clamp(value, 0, 1);
 		}
 	}
 	public float Sleep
 	{
 		get
 		{
-			return animalInfo.sleep;
+			return AnimalInfo.sleep;
 		}
 		set
 		{
-			animalInfo.sleep = Mathf.Clamp(value, 0, 1);
+			AnimalInfo.sleep = Mathf.Clamp(value, 0, 1);
 		}
 	}
 	public float Bladder
 	{
 		get
 		{
-			return animalInfo.bladder;
+			return AnimalInfo.bladder;
 		}
 		set
 		{
-			animalInfo.bladder = Mathf.Clamp(value, 0, 1);
+			AnimalInfo.bladder = Mathf.Clamp(value, 0, 1);
 		}
 	}
 	public float Grooming
 	{
 		get
 		{
-			return animalInfo.grooming;
+			return AnimalInfo.grooming;
 		}
 		set
 		{
-			animalInfo.grooming = Mathf.Clamp(value, 0, 1);
+			AnimalInfo.grooming = Mathf.Clamp(value, 0, 1);
 		}
 	}
 	public bool CanBePet => petTimer <= 0;
 	public bool CanBeGroomed => groomTimer <= 0;
-
+	public (float food, float entertainment, float attention, float sleep, float bladder, float grooming) Stats =>
+		(Food, Entertainment, Attention, Sleep, Bladder, Grooming);
 	private Behaviours Behaviour
 	{
 		get { return behaviour; }
@@ -101,6 +103,7 @@ public class Animal : MonoBehaviour
 		}
 	}
 
+
 	// Start is called before the first frame update
 	void Start()
 	{
@@ -110,10 +113,10 @@ public class Animal : MonoBehaviour
 		spriteRenderer = spriteTransform.GetComponent<SpriteRenderer>();
 		spritesheetAnimator = spriteTransform.GetComponent<SpritesheetAnimator>();
 		animator = spriteTransform.GetComponent<Animator>();
-		timer = Random.Range(animalInfo.timeBetweenMovements.x, animalInfo.timeBetweenMovements.y);
-		
-		name = animalInfo.name;
-		spritesheetAnimator.SetSpritesheet(animalInfo.spriteAtlasName);
+		timer = Random.Range(AnimalInfo.timeBetweenMovements.x, AnimalInfo.timeBetweenMovements.y);
+
+		name = AnimalInfo.name;
+		spritesheetAnimator.SetSpritesheet(AnimalInfo.spriteAtlasName);
 	}
 
 	// Update is called once per frame
@@ -155,9 +158,91 @@ public class Animal : MonoBehaviour
 			groomTimer -= Time.deltaTime;
 	}
 
-	public (float food, float entertainment, float attention, float sleep, float bladder, float grooming) GetStats()
-		=> (Food, Entertainment, Attention, Sleep, Bladder, Grooming);
 
+	private Behaviours ChooseBehaviour()
+	{
+		// Using one roll for the whole check (could be split into multiple)
+		float roll = Random.value;
+		// Piecewise function to determine chance of attempt
+		float foodCheck = Food < 0.5f ? 1f - (1.4f * Food) : 0;
+		//Debug.Log($"Food Check: <color={(roll < foodCheck ? "red" : "green")}>{roll}/{foodCheck}</color>");
+		if (roll < foodCheck && GameManager.Instance.TryGetFoodBowl(out FoodBowl bowl))
+		{	
+			equipmentInUse = bowl;
+			agent.SetDestination(equipmentInUse.InteractLocation.position);
+			return Behaviours.Eating;
+		}
+
+		if (Bladder > 0)
+		{
+			// Piecewise function to determine chance of attempt
+			float bladderCheck = Bladder < 0.6f ? 1 - (1.5f * Bladder) : 0;
+			//Debug.Log($"Bladder Check: <color={(roll < bladderCheck ? "red" : "green")}>{roll}/{bladderCheck}</color>");
+			if (roll < bladderCheck && GameManager.Instance.TryGetLitterTray(out LitterTray tray))
+			{
+				Debug.Log($"{name} is attempting to poop");
+				equipmentInUse = tray;
+				agent.SetDestination(equipmentInUse.InteractLocation.position);
+				return Behaviours.Pooping;
+			}
+		}
+		else
+		{
+			Debug.Log("Bladder empty - pooping on floor");
+			// Poop on floor
+			return Behaviours.PoopingInPlace;
+		}
+
+
+		switch (Sleep)
+		{
+			case <= 0.1f:
+				float sleepCheck = 1f - (2f * Sleep);
+				//Debug.Log($"Sleep Check (<0.1): <color={(roll < sleepCheck ? "red" : "green")}>{roll}/{sleepCheck}</color>");
+				if (roll >= sleepCheck) break;
+
+				if (GameManager.Instance.TryGetBed(out Bed bed))
+				{
+					Debug.Log($"Sleeping in bed {bed.name}");
+					equipmentInUse = bed;
+					agent.SetDestination(equipmentInUse.InteractLocation.position);
+					return Behaviours.Sleeping;
+				}
+				else
+				{
+					Debug.Log("No beds, sleeping on floor");
+					return Behaviours.SleepingInPlace;
+				}
+			case <= 0.8f:
+				sleepCheck = 1.13f - (1.3f * Sleep);
+				//Debug.Log($"Sleep Check (<0.8): <color={(roll < sleepCheck ? "red" : "green")}>{roll}/{sleepCheck}</color>");
+				if (roll >= sleepCheck) break;
+
+				if (GameManager.Instance.TryGetBed(out bed))
+				{
+					Debug.Log($"Sleeping in bed {bed.name}");
+					equipmentInUse = bed;
+					agent.SetDestination(equipmentInUse.InteractLocation.position);
+					return Behaviours.Sleeping;
+				}
+				break;
+		}
+
+		float entertainmentCheck = 1 - (0.9f * AnimalInfo.entertainment);
+		//Debug.Log($"Entertainment Check: <color={(roll < entertainmentCheck ? "red" : "green")}>{roll}/{entertainmentCheck}</color>");
+		if (roll < entertainmentCheck && GameManager.Instance.TryGetToy(out Toy toy))
+		{
+			equipmentInUse = toy;
+			agent.SetDestination(equipmentInUse.InteractLocation.position);
+			return Behaviours.Playing;
+		}
+
+		Debug.Log("No matches, wandering");
+		// No behaviours chosen, choose a new spot to nav to
+		FindNewWanderLocation();
+		return Behaviours.Idle;
+	}
+	
 	private void ActionIdle()
 	{
 		// If not at destination, return
@@ -321,98 +406,14 @@ public class Animal : MonoBehaviour
 
 	public void Pet()
 	{
-		animalInfo.attention += 0.3f;
+		AnimalInfo.attention += 0.3f;
 		petTimer = 10f;
 	}
 
 	public void Groom()
 	{
-		animalInfo.grooming += 0.5f;
+		AnimalInfo.grooming += 0.5f;
 		groomTimer = 30f;
-	}
-
-	private Behaviours ChooseBehaviour()
-	{
-		// Using one roll for the whole check (could be split into multiple)
-		float roll = Random.value;
-		// Piecewise function to determine chance of attempt
-		float foodCheck = Food < 0.5f ? 1f - (1.4f * Food) : 0;
-		//Debug.Log($"Food Check: <color={(roll < foodCheck ? "red" : "green")}>{roll}/{foodCheck}</color>");
-		if (roll < foodCheck && GameManager.Instance.TryGetFoodBowl(out FoodBowl bowl))
-		{	
-			equipmentInUse = bowl;
-			agent.SetDestination(equipmentInUse.InteractLocation.position);
-			return Behaviours.Eating;
-		}
-
-		if (Bladder > 0)
-		{
-			// Piecewise function to determine chance of attempt
-			float bladderCheck = Bladder < 0.6f ? 1 - (1.5f * Bladder) : 0;
-			//Debug.Log($"Bladder Check: <color={(roll < bladderCheck ? "red" : "green")}>{roll}/{bladderCheck}</color>");
-			if (roll < bladderCheck && GameManager.Instance.TryGetLitterTray(out LitterTray tray))
-			{
-				Debug.Log($"{name} is attempting to poop");
-				equipmentInUse = tray;
-				agent.SetDestination(equipmentInUse.InteractLocation.position);
-				return Behaviours.Pooping;
-			}
-		}
-		else
-		{
-			Debug.Log("Bladder empty - pooping on floor");
-			// Poop on floor
-			return Behaviours.PoopingInPlace;
-		}
-
-
-		switch (Sleep)
-		{
-			case <= 0.1f:
-				float sleepCheck = 1f - (2f * Sleep);
-				//Debug.Log($"Sleep Check (<0.1): <color={(roll < sleepCheck ? "red" : "green")}>{roll}/{sleepCheck}</color>");
-				if (roll >= sleepCheck) break;
-
-				if (GameManager.Instance.TryGetBed(out Bed bed))
-				{
-					Debug.Log($"Sleeping in bed {bed.name}");
-					equipmentInUse = bed;
-					agent.SetDestination(equipmentInUse.InteractLocation.position);
-					return Behaviours.Sleeping;
-				}
-				else
-				{
-					Debug.Log("No beds, sleeping on floor");
-					return Behaviours.SleepingInPlace;
-				}
-			case <= 0.8f:
-				sleepCheck = 1.13f - (1.3f * Sleep);
-				//Debug.Log($"Sleep Check (<0.8): <color={(roll < sleepCheck ? "red" : "green")}>{roll}/{sleepCheck}</color>");
-				if (roll >= sleepCheck) break;
-
-				if (GameManager.Instance.TryGetBed(out bed))
-				{
-					Debug.Log($"Sleeping in bed {bed.name}");
-					equipmentInUse = bed;
-					agent.SetDestination(equipmentInUse.InteractLocation.position);
-					return Behaviours.Sleeping;
-				}
-				break;
-		}
-
-		float entertainmentCheck = 1 - (0.9f * animalInfo.entertainment);
-		//Debug.Log($"Entertainment Check: <color={(roll < entertainmentCheck ? "red" : "green")}>{roll}/{entertainmentCheck}</color>");
-		if (roll < entertainmentCheck && GameManager.Instance.TryGetToy(out Toy toy))
-		{
-			equipmentInUse = toy;
-			agent.SetDestination(equipmentInUse.InteractLocation.position);
-			return Behaviours.Playing;
-		}
-
-		Debug.Log("No matches, wandering");
-		// No behaviours chosen, choose a new spot to nav to
-		FindNewWanderLocation();
-		return Behaviours.Idle;
 	}
 
 	void FindNewWanderLocation()
@@ -427,7 +428,7 @@ public class Animal : MonoBehaviour
 			agent.SetDestination(hit.position);
 
 			// Reset timer
-			timer = Random.Range(animalInfo.timeBetweenMovements.x, animalInfo.timeBetweenMovements.y);
+			timer = Random.Range(AnimalInfo.timeBetweenMovements.x, AnimalInfo.timeBetweenMovements.y);
 		}
 	}
 
@@ -435,11 +436,13 @@ public class Animal : MonoBehaviour
 	{
 		float entertainmentModifier = Mathf.Lerp(1.5f, 1f, Entertainment * 3.3f);
 
-		Food -= 0.01f * animalInfo.foodMod * entertainmentModifier * GameManager.Instance.GlobalFoodDecayModifier * Time.deltaTime;
-		Attention -= 0.01f * animalInfo.attentionMod * entertainmentModifier * GameManager.Instance.GlobalEntertainmentDecayModifier * Time.deltaTime;
-		Sleep -= 0.01f * animalInfo.sleepMod * entertainmentModifier * GameManager.Instance.GlobalSleepDecayModifier * Time.deltaTime;
-		Bladder -= 0.01f * animalInfo.bladderMod * entertainmentModifier * GameManager.Instance.GlobalBladderDecayModifier * Time.deltaTime;
-		Grooming -= 0.01f * animalInfo.groomingMod * entertainmentModifier * GameManager.Instance.GlobalGroomingDecayModifier * Time.deltaTime;
-		Entertainment -= 0.01f * animalInfo.entertainmentMod * GameManager.Instance.GlobalEntertainmentDecayModifier * Time.deltaTime;
+		Food -= 0.01f * AnimalInfo.foodMod * entertainmentModifier * GameManager.Instance.GlobalFoodDecayModifier * Time.deltaTime;
+		Attention -= 0.01f * AnimalInfo.attentionMod * entertainmentModifier * GameManager.Instance.GlobalEntertainmentDecayModifier * Time.deltaTime;
+		Sleep -= 0.01f * AnimalInfo.sleepMod * entertainmentModifier * GameManager.Instance.GlobalSleepDecayModifier * Time.deltaTime;
+		Bladder -= 0.01f * AnimalInfo.bladderMod * entertainmentModifier * GameManager.Instance.GlobalBladderDecayModifier * Time.deltaTime;
+		Grooming -= 0.01f * AnimalInfo.groomingMod * entertainmentModifier * GameManager.Instance.GlobalGroomingDecayModifier * Time.deltaTime;
+		Entertainment -= 0.01f * AnimalInfo.entertainmentMod * GameManager.Instance.GlobalEntertainmentDecayModifier * Time.deltaTime;
 	}
+
+	public void SetInfo(AnimalInfo info) => AnimalInfo = info;
 }
