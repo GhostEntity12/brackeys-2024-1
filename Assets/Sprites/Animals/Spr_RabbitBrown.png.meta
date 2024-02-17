@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 7d400b3ba97ef2c40a932a7e383920b5
+guid: eb20b487c3a46794ba8c8621c4a2e80f
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -34,7 +34,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 0
+    filterMode: 1
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -119,7 +119,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Spr_BlackCat_0
+      name: Spr_RabbitBrown_0
       rect:
         serializedVersion: 2
         x: 0
@@ -133,14 +133,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: d72f0c58d142f324fa2dc51f21020a5a
-      internalID: -1452315379
+      spriteID: eb3d85281e9c45646b648cae489518f4
+      internalID: 1279551949
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Spr_BlackCat_1
+      name: Spr_RabbitBrown_1
       rect:
         serializedVersion: 2
         x: 512
@@ -154,14 +154,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 846ee2edde7a84b4a9a21b949097d89e
-      internalID: -327122346
+      spriteID: 9ba11ad141a978742adf38313abcf069
+      internalID: -2012866128
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Spr_BlackCat_2
+      name: Spr_RabbitBrown_2
       rect:
         serializedVersion: 2
         x: 1024
@@ -175,14 +175,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 0c9e941a0eda5af40a171c32c830c951
-      internalID: 1025689228
+      spriteID: 5ec2b7706f765b14ebb003cb8d805587
+      internalID: -1900189559
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Spr_BlackCat_3
+      name: Spr_RabbitBrown_3
       rect:
         serializedVersion: 2
         x: 0
@@ -196,8 +196,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 7de43c09c18bfdb43aa2f6e238297ad5
-      internalID: -521312885
+      spriteID: 397183285b05a9949ad0cae15f58d40d
+      internalID: -1001349086
       vertices: []
       indices: 
       edges: []
@@ -205,7 +205,7 @@ TextureImporter:
     outline: []
     physicsShape: []
     bones: []
-    spriteID: 57119e329a516724cb5c918bcf5a40ff
+    spriteID: d10e5710cfe803a4dba46e7bbd234aba
     internalID: 0
     vertices: []
     indices: 
@@ -213,10 +213,10 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      Spr_BlackCat_1: -327122346
-      Spr_BlackCat_3: -521312885
-      Spr_BlackCat_2: 1025689228
-      Spr_BlackCat_0: -1452315379
+      Spr_RabbitBrown_2: -1900189559
+      Spr_RabbitBrown_3: -1001349086
+      Spr_RabbitBrown_1: -2012866128
+      Spr_RabbitBrown_0: 1279551949
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

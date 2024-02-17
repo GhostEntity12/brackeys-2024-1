@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 53342839a9c0c0f448ae8c3e1608e738
+guid: 9f88f3b126f99304e955dc078be80930
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -119,7 +119,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Spr_GingerCat_0
+      name: Spr_CatWhite_0
       rect:
         serializedVersion: 2
         x: 0
@@ -133,14 +133,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 96fc11451b75b88478e59941c2005ba7
-      internalID: 474669787
+      spriteID: 7a19c87af695dcc4f9219eb5bb405222
+      internalID: 1563152996
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Spr_GingerCat_1
+      name: Spr_CatWhite_1
       rect:
         serializedVersion: 2
         x: 512
@@ -154,14 +154,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: e919a45e228a06641abc1d8ef08ccbb2
-      internalID: 1380984702
+      spriteID: 573614565dbd4c140a778fe86436f0e1
+      internalID: 1767314210
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Spr_GingerCat_2
+      name: Spr_CatWhite_2
       rect:
         serializedVersion: 2
         x: 1024
@@ -175,14 +175,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: bea7b6b0e53c20848aeae47d1e03fea6
-      internalID: 850761008
+      spriteID: 5d424913d6c8b6b479a06f26f51262d4
+      internalID: -1227163648
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Spr_GingerCat_3
+      name: Spr_CatWhite_3
       rect:
         serializedVersion: 2
         x: 0
@@ -196,8 +196,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 547a820355a31da40a5b63399e155fa7
-      internalID: 837390717
+      spriteID: 79f2b37e3c5d43743b61237d59b8d1d1
+      internalID: 327727146
       vertices: []
       indices: 
       edges: []
@@ -213,10 +213,10 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      Spr_GingerCat_2: 850761008
-      Spr_GingerCat_1: 1380984702
-      Spr_GingerCat_3: 837390717
-      Spr_GingerCat_0: 474669787
+      Spr_CatWhite_3: 327727146
+      Spr_CatWhite_1: 1767314210
+      Spr_CatWhite_0: 1563152996
+      Spr_CatWhite_2: -1227163648
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

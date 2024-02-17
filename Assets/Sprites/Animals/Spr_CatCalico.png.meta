@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 9f88f3b126f99304e955dc078be80930
+guid: 98521e1df0cac2f45bf886f98fce3eca
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -119,7 +119,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Spr_WhiteCat_0
+      name: Spr_CatCalico_0
       rect:
         serializedVersion: 2
         x: 0
@@ -133,14 +133,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: cb907edcd81ac5644bebc5ff2366f5bf
-      internalID: 725071447
+      spriteID: 55215118b52bf5a4293dc0c19f603028
+      internalID: 1782912937
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Spr_WhiteCat_1
+      name: Spr_CatCalico_1
       rect:
         serializedVersion: 2
         x: 512
@@ -154,14 +154,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: ad092de5de0d8fe4a86d17e3465a9717
-      internalID: 881593409
+      spriteID: 4ac5e9cac9de6ff49b70e160a605b7ec
+      internalID: -1019908425
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Spr_WhiteCat_2
+      name: Spr_CatCalico_2
       rect:
         serializedVersion: 2
         x: 1024
@@ -175,14 +175,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 177e64e25a5627047b4df6668ddb8768
-      internalID: -1973619557
+      spriteID: 49540d14a8eabec41955ee7ac06d6497
+      internalID: 969134711
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Spr_WhiteCat_3
+      name: Spr_CatCalico_3
       rect:
         serializedVersion: 2
         x: 0
@@ -196,8 +196,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 3dd51e5a9ccc2174abc3b6d13aa33cf5
-      internalID: -696145649
+      spriteID: 6a9fabdc07a426f4bb733a9e05ad1ac9
+      internalID: 1452346825
       vertices: []
       indices: 
       edges: []
@@ -213,10 +213,10 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      Spr_WhiteCat_1: 881593409
-      Spr_WhiteCat_0: 725071447
-      Spr_WhiteCat_2: -1973619557
-      Spr_WhiteCat_3: -696145649
+      Spr_CatCalico_2: 969134711
+      Spr_CatCalico_3: 1452346825
+      Spr_CatCalico_1: -1019908425
+      Spr_CatCalico_0: 1782912937
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

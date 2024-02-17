@@ -7,12 +7,19 @@ public class Gacha : MonoBehaviour
 	[SerializeField] CanvasGroup lightBeamGroup;
 	[SerializeField] Animator doorAnimator;
 	[SerializeField] CanvasGroup fade;
+	[SerializeField] CanvasGroup closeButton;
 	[SerializeField] Image animal;
+	[SerializeField] RectTransform info;
+
+	AnimalInfo animalInfo;
 
 	bool active;
 	RectTransform lightBeamsTransform;
 	Button doorButton;
 	CanvasGroup canvas;
+
+	public delegate void OnReset(AnimalInfo a);
+	public OnReset onResetEvent;
 
 	private void Start()
 	{
@@ -36,6 +43,7 @@ public class Gacha : MonoBehaviour
 		canvas.blocksRaycasts = true;
 		canvas.interactable = true;
 		canvas.alpha = 1;
+		animalInfo = a;
 	}
 
 	public void Activate()
@@ -48,6 +56,9 @@ public class Gacha : MonoBehaviour
 
 		//After flash
 		LeanTween.alphaCanvas(fade, 0, 0.5f).setDelay(2.8f);
+
+		// Show Info
+		LeanTween.moveX(info, 600, 0.4f).setDelay(3f).setOnComplete(() => closeButton.interactable = closeButton.blocksRaycasts = true);
 	}
 
 	public void Reset()
@@ -55,10 +66,14 @@ public class Gacha : MonoBehaviour
 		active = false;
 		canvas.blocksRaycasts = false;
 		canvas.interactable = false;
+		closeButton.interactable = false;
+		closeButton.blocksRaycasts = false;
 		canvas.alpha = 0;
 		doorButton.enabled = true;
 		lightBeamGroup.alpha = 0;
 		lightBeamsTransform.anchoredPosition = Vector3.zero;
 		doorAnimator.SetTrigger("Reset");
+		info.anchoredPosition = new(1240, -225);
+		onResetEvent.Invoke(animalInfo);
 	}
 }

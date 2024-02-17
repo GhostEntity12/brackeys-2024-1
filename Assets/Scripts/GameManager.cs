@@ -1,16 +1,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.U2D;
+using UnityEngine.UI;
 
 public class GameManager : Singleton<GameManager>
 {
 	List<Animal> animals = new();
 
 	[SerializeField] Animal animalPrefab;
+	[SerializeField] int maxAnimals;
 
 	[SerializeField] Gacha gachaScreen;
+	[SerializeField] Button doorButton;
 
 	// Replace this with Serializables
 	[SerializeField] List<SpriteAtlas> animalSprites;
@@ -85,19 +87,31 @@ public class GameManager : Singleton<GameManager>
 		"Brock"
 	};
 
+	float nextAnimalTimer;
+	bool doorButtonActive = false;
+
 	private void Start()
 	{
 		Application.targetFrameRate = 100;
 
 		// Make equipment available
 		FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None).OfType<IEquipment>().ToList().ForEach(e => ReturnEquipment(e));
+
+		nextAnimalTimer = animals.Count == 0 ? 5 : 5 * Mathf.Pow(animals.Count, 1.1f) + Random.Range(100, 150);
+
 	}
 
 	private void Update()
 	{
-		if (Input.GetKeyDown(KeyCode.T))
+		if (animals.Count < maxAnimals)
 		{
-			gachaScreen.Setup(ChooseNewAnimal());
+			nextAnimalTimer -= Time.deltaTime;
+			if (!doorButtonActive && nextAnimalTimer < 0)
+			{
+				doorButtonActive = true;
+				doorButton.interactable = true;
+				LeanTween.moveY(doorButton.gameObject, 40, 0.3f).setEaseOutBack();
+			}
 		}
 	}
 
@@ -132,8 +146,8 @@ public class GameManager : Singleton<GameManager>
 	public bool TryGetToy(out Toy toy)
 	{
 		toy = null;
-		if (availableBeds.Count == 0) return false;
-		
+		if (availableToys.Count == 0) return false;
+
 		toy = availableToys.Dequeue();
 		return true;
 	}
@@ -210,5 +224,17 @@ public class GameManager : Singleton<GameManager>
 	{
 		Animal a = Instantiate(animalPrefab);
 		a.SetInfo(info);
+		animals.Add(a);
+		gachaScreen.onResetEvent -= SpawnAnimal;
+	}
+
+	public void OnClickDoorButton()
+	{
+		gachaScreen.Setup(ChooseNewAnimal());
+		gachaScreen.onResetEvent += SpawnAnimal;
+		LeanTween.moveY(doorButton.gameObject, -240, 0.3f).setEaseInBack();
+		doorButtonActive = false;
+		doorButton.interactable = false;
+		nextAnimalTimer = (5 * Mathf.Pow(animals.Count, 1.1f) + Random.Range(1,5));
 	}
 }
