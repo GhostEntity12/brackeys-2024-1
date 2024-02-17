@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class NeedsWindow : MonoBehaviour
 {
@@ -12,6 +13,7 @@ public class NeedsWindow : MonoBehaviour
 	
 	[SerializeField] private TextMeshProUGUI animalName;
 	[SerializeField] private NeedBar foodBar, entertainmentBar, attentionBar, bladderBar, sleepBar, groomingBar;
+	[SerializeField] private Button petButton, groomButton;
 
 	private void Start()
 	{
@@ -24,7 +26,7 @@ public class NeedsWindow : MonoBehaviour
 	{
 		if (animal)
 		{
-			rectTransform.anchoredPosition = c.WorldToScreenPoint(animal.transform.position);
+			rectTransform.position = c.WorldToScreenPoint(animal.transform.position + Vector3.up * 2);
 			(float food, float entertainment, float attention, float sleep, float bladder, float grooming) = animal.GetStats();
 			foodBar.FillAmount = food;
 			entertainmentBar.FillAmount = entertainment;
@@ -32,6 +34,8 @@ public class NeedsWindow : MonoBehaviour
 			sleepBar.FillAmount = sleep;
 			bladderBar.FillAmount = bladder;
 			groomingBar.FillAmount = grooming;
+			petButton.interactable = animal.CanBePet;
+			groomButton.interactable = animal.CanBeGroomed;
 		}
 	}
 
@@ -60,4 +64,8 @@ public class NeedsWindow : MonoBehaviour
 		active = false;
 		LeanTween.scaleY(gameObject, 0f, 0.3f).setEaseInBack().setOnComplete(() => animal = null);
 	}
+
+	public void Pet() => animal.Pet();
+
+	public void Groom() => animal.Groom();
 }
