@@ -1,6 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Collections.Specialized;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -13,6 +10,7 @@ public class Animal : MonoBehaviour
 	private Animator animator;
 
 	private Behaviours behaviour = Behaviours.Idle;
+	private AnimalInfo.Attributes attributes;
 	float baseValue;
 
 	// Needs
@@ -22,24 +20,20 @@ public class Animal : MonoBehaviour
 	private float sleepDecayRate = 0.001f;
 	private float bladderDecayRate = 0.001f;
 	private float groomingDecayRate = 0.001f;
-
-	[Range(0f, 1f)]
-	[SerializeField] private float food;
-	[Range(0f, 1f)]
-	[SerializeField] private float entertainment;
-	[Range(0f, 1f)]
-	[SerializeField] private float attention;
-	[Range(0f, 1f)]
-	[SerializeField] private float sleep;
-	[Range(0f, 1f)]
-	[SerializeField] private float bladder;
-	[Range(0f, 1f)]
-	[SerializeField] private float grooming;
+	
+	private float food;
+	private float entertainment;
+	private float attention;
+	private float sleep;
+	private float bladder;
+	private float grooming;
 
 	[SerializeField] private Vector2 timeBetweenMovements = new(2, 8);
 	[SerializeField] private float wanderRadius = 3;
 
 	private float timer;
+	private float petTimer;
+	private float groomTimer;
 	private bool usingEquipment;
 	IEquipment equipmentInUse = null;
 
@@ -109,6 +103,8 @@ public class Animal : MonoBehaviour
 			grooming = Mathf.Clamp(value, 0, 1);
 		}
 	}
+	public bool CanBePet => petTimer <= 0;
+	public bool CanBeGroomed => groomTimer <= 0;
 
 	private Behaviours Behaviour
 	{
@@ -177,6 +173,10 @@ public class Animal : MonoBehaviour
 		// Set sprite variables
 		animator.SetFloat("MoveSpeed", agent.velocity.magnitude);
 		spriteRenderer.flipX = transform.position.x > agent.destination.x;
+		if (petTimer > 0) 
+			petTimer -= Time.deltaTime;
+		if (groomTimer > 0) 
+			groomTimer -= Time.deltaTime;
 	}
 
 	public (float food, float entertainment, float attention, float sleep, float bladder, float grooming) GetStats()
@@ -184,13 +184,10 @@ public class Animal : MonoBehaviour
 
 	private void ActionIdle()
 	{
-		Debug.Log("Idling");
-		Debug.Log(Vector3.Distance(agent.destination, transform.position));
 		// If not at destination, return
 		if (Vector3.Distance(agent.destination, transform.position) > 0.1f) return;
-
-		Debug.Log("Idling2");
-		// Animal is at destination and is idling.
+		
+			// Animal is at destination and is idling.
 		// Decrease idle timer. Return while above 0
 		timer -= Time.deltaTime;
 		if (timer > 0) return;
@@ -346,16 +343,27 @@ public class Animal : MonoBehaviour
 		Behaviour = Behaviours.Idle;
 	}
 
+	public void Pet()
+	{
+		attention += 0.3f;
+		petTimer = 10f;
+	}
+
+	public void Groom()
+	{
+		grooming += 0.5f;
+		groomTimer = 30f;
+	}
+
 	private Behaviours ChooseBehaviour()
 	{
 		// Using one roll for the whole check (could be split into multiple)
 		float roll = Random.value;
 		// Piecewise function to determine chance of attempt
 		float foodCheck = Food < 0.5f ? 1f - (1.4f * Food) : 0;
-		Debug.Log($"Food Check: <color={(roll < foodCheck ? "red" : "green")}>{roll}/{foodCheck}</color>");
+		//Debug.Log($"Food Check: <color={(roll < foodCheck ? "red" : "green")}>{roll}/{foodCheck}</color>");
 		if (roll < foodCheck && GameManager.Instance.TryGetFoodBowl(out FoodBowl bowl))
-		{
-			agent.destination = equipmentInUse.InteractLocation.position;
+		{	
 			equipmentInUse = bowl;
 			agent.SetDestination(equipmentInUse.InteractLocation.position);
 			return Behaviours.Eating;
@@ -365,7 +373,7 @@ public class Animal : MonoBehaviour
 		{
 			// Piecewise function to determine chance of attempt
 			float bladderCheck = Bladder < 0.6f ? 1 - (1.5f * Bladder) : 0;
-			Debug.Log($"Bladder Check: <color={(roll < bladderCheck ? "red" : "green")}>{roll}/{bladderCheck}</color>");
+			//Debug.Log($"Bladder Check: <color={(roll < bladderCheck ? "red" : "green")}>{roll}/{bladderCheck}</color>");
 			if (roll < bladderCheck && GameManager.Instance.TryGetLitterTray(out LitterTray tray))
 			{
 				Debug.Log($"{name} is attempting to poop");
@@ -386,7 +394,7 @@ public class Animal : MonoBehaviour
 		{
 			case float and <= 0.1f:
 				float sleepCheck = 1f - (2f * Sleep);
-				Debug.Log($"Sleep Check (<0.1): <color={(roll < sleepCheck ? "red" : "green")}>{roll}/{sleepCheck}</color>");
+				//Debug.Log($"Sleep Check (<0.1): <color={(roll < sleepCheck ? "red" : "green")}>{roll}/{sleepCheck}</color>");
 				if (roll >= sleepCheck) break;
 
 				if (GameManager.Instance.TryGetBed(out Bed bed))
@@ -403,7 +411,7 @@ public class Animal : MonoBehaviour
 				}
 			case float and <= 0.8f:
 				sleepCheck = 1.13f - (1.3f * Sleep);
-				Debug.Log($"Sleep Check (<0.8): <color={(roll < sleepCheck ? "red" : "green")}>{roll}/{sleepCheck}</color>");
+				//Debug.Log($"Sleep Check (<0.8): <color={(roll < sleepCheck ? "red" : "green")}>{roll}/{sleepCheck}</color>");
 				if (roll >= sleepCheck) break;
 
 				if (GameManager.Instance.TryGetBed(out bed))
@@ -417,7 +425,7 @@ public class Animal : MonoBehaviour
 		}
 
 		float entertainmentCheck = 1 - (0.9f * entertainment);
-		Debug.Log($"Entertainment Check: <color={(roll < entertainmentCheck ? "red" : "green")}>{roll}/{entertainmentCheck}</color>");
+		//Debug.Log($"Entertainment Check: <color={(roll < entertainmentCheck ? "red" : "green")}>{roll}/{entertainmentCheck}</color>");
 		if (roll < entertainmentCheck && GameManager.Instance.TryGetToy(out Toy toy))
 		{
 			equipmentInUse = toy;
