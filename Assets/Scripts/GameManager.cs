@@ -24,6 +24,9 @@ public class GameManager : Singleton<GameManager>
 	private Queue<Toy> AvailableToys;
 
 	private Camera c;
+	List<Animal> animals = new();
+
+	//List<>
 
 	private void Start()
 	{
@@ -40,7 +43,6 @@ public class GameManager : Singleton<GameManager>
 	{
 		if (Input.GetMouseButtonDown(0))
 		{
-			Debug.Log(EventSystem.current.IsPointerOverGameObject());
 			if (Physics.Raycast(c.ScreenPointToRay(Input.mousePosition), out RaycastHit hit, 100f, 1 << 6) &&
 				hit.transform.TryGetComponent(out Animal a))
 			{
@@ -59,7 +61,7 @@ public class GameManager : Singleton<GameManager>
 	{
 		foodBowl = null;
 		if (AvailableFoodbowls.Count == 0) return false;
-		
+
 		{
 			foodBowl = AvailableFoodbowls.Dequeue();
 			return true;
@@ -121,6 +123,35 @@ public class GameManager : Singleton<GameManager>
 				Debug.LogError("Unkown Equipment type");
 				break;
 
+		}
+	}
+
+	public void ChooseNewAnimal(AnimalInfo.Rarities? rarity = null)
+	{
+		// If no chosen rarity, choose
+		if (rarity == null)
+		{
+			float roll = Random.value;
+			rarity =
+				roll < 0.01f ? AnimalInfo.Rarities.Legendary :
+				roll < 0.11f ? AnimalInfo.Rarities.Legendary :
+				roll < 0.31f ? AnimalInfo.Rarities.Rare :
+				roll < 0.61f ? AnimalInfo.Rarities.Uncommon :
+				AnimalInfo.Rarities.Common;
+		}
+
+		switch (rarity)
+		{
+			case AnimalInfo.Rarities.Common:
+				break;
+			case AnimalInfo.Rarities.Uncommon:
+				break;
+			case AnimalInfo.Rarities.Rare:
+				break;
+			case AnimalInfo.Rarities.Legendary:
+				break;
+			case AnimalInfo.Rarities.Mythic:
+				break;
 		}
 	}
 }
