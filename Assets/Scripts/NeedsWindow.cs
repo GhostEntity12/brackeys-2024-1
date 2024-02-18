@@ -14,6 +14,7 @@ public class NeedsWindow : MonoBehaviour
 	
 	[SerializeField] private TextMeshProUGUI animalName;
 	[SerializeField] private NeedBar foodBar, entertainmentBar, attentionBar, bladderBar, sleepBar, groomingBar;
+	[SerializeField] private AttributeTag[] attributeTags = new AttributeTag[3];
 	[SerializeField] private Button petButton, groomButton;
 
 	private void Start()
@@ -61,20 +62,28 @@ public class NeedsWindow : MonoBehaviour
 		{
 			active = false;
 			// Vanish the element and call this function recursively
-			LeanTween.scaleY(gameObject, 0f, 0.3f).setEaseInBack().setOnComplete(a => Show(a as Animal));
+			LeanTween.scaleY(gameObject, 0f, 0.3f).setEaseInBack().setOnComplete(() => Show(a));
 		}
 		else
 		{
 			active = true;
 			animal = a;
 			animalName.text = animal.name;
+			for (int i = 0; i < 3; i++)
+			{
+				List< AnimalInfo.Attributes> attributes = a.AnimalInfo.attributes;
+				attributeTags[i].gameObject.SetActive(i < attributes.Count);
+				if (i < attributes.Count)
+				{
+					attributeTags[i].Setup(attributes[i]);
+				}
+			}
 			LeanTween.scaleY(gameObject, 1f, 0.3f).setEaseOutBack();
 		}
 	}
 
 	public void Hide()
 	{
-		Debug.Log("Hiding");
 		active = false;
 		LeanTween.scaleY(gameObject, 0f, 0.3f).setEaseInBack().setOnComplete(() => animal = null);
 	}
