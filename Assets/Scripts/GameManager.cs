@@ -6,23 +6,22 @@ using UnityEngine.UI;
 
 public class GameManager : Singleton<GameManager>
 {
-	List<Animal> animals = new();
+	public List<Animal> animals = new();
 
-	[SerializeField] Animal animalPrefab;
-	[SerializeField] int maxAnimals;
-
-	[SerializeField] Gacha gachaScreen;
+	[Header("Buttons")]
 	[SerializeField] Button doorButton;
 
+
+	[Header("Animals")]
+	[SerializeField] Animal animalPrefab;
+	[SerializeField] int maxAnimals;
 	// Replace this with Serializables
 	[SerializeField] List<SpriteAtlas> animalSprites;
 	[SerializeField] List<AnimalInfo> animalInfos;
 
-	private Queue<Bed> availableBeds = new();
-	private Queue<FoodBowl> availableFoodbowls = new();
-	private Queue<LitterTray> availableLitterTrays = new();
-	private Queue<Toy> availableToys = new();
-
+	[Space(20)]
+	[SerializeField] Gacha gachaScreen;
+	
 	[Header("Global Modifiers")]
 	public float GlobalFoodDecayModifier = 1;
 	public float GlobalEntertainmentDecayModifier = 1;
@@ -31,7 +30,7 @@ public class GameManager : Singleton<GameManager>
 	public float GlobalBladderDecayModifier = 1;
 	public float GlobalGroomingDecayModifier = 1;
 
-	public readonly List<string> names = new()
+	public static List<string> animalNames = new()
 	{
 		"Fido",
 		"Oreo",
@@ -86,9 +85,61 @@ public class GameManager : Singleton<GameManager>
 		"Thor",
 		"Brock"
 	};
+	public static List<string> humanNames = new()
+	{
+		"Ada",
+		"Maria",
+		"Jake",
+		"Nick",
+		"Roy",
+		"Alvin",
+		"Shay",
+		"Taylor",
+		"Billie",
+		"Lisa",
+		"Eric",
+		"Elliot",
+		"Michelle",
+		"Casey",
+		"Jenna",
+		"Ash",
+		"Natalie",
+		"Shane",
+		"Phillip",
+		"Yuki",
+		"Sam",
+		"Lily",
+		"Flynn",
+		"Amy",
+		"Levi",
+		"Jackson",
+		"Rose",
+		"Aiden",
+		"Amara",
+		"Quinn"
+	};
+	public static List<string> requestMessages = new()
+	{
+		"Hi! I was looking for a pet who is {0}. Do you have any?",
+		"You're a shelter, right? I want a {0} animal!",
+		"Omg hi! You wouldn't happen to have a {0} pet there, would you?",
+		"Hey. I was looking for an animal who is {0}! Please say you have one!",
+		"Hai! I really want a pet! I would happily take one that is {0}!",
+		"Mum says I can have a pet but it has to be {0}. Please?",
+		"I want to get my kids a pet for Christmas! They'd love one that is {0}! Please send it soon!",
+		"I need a {0} animal ASAP! Seriously!",
+		"Hello there, I require one of your finest {0} animals. Thank you for your cooperation"
+	};
+
+	private Queue<Bed> availableBeds = new();
+	private Queue<FoodBowl> availableFoodbowls = new();
+	private Queue<LitterTray> availableLitterTrays = new();
+	private Queue<Toy> availableToys = new();
 
 	float nextAnimalTimer;
 	bool doorButtonActive = false;
+
+	public static System.Random rand = new();
 
 	private void Start()
 	{
@@ -98,7 +149,6 @@ public class GameManager : Singleton<GameManager>
 		FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None).OfType<IEquipment>().ToList().ForEach(e => ReturnEquipment(e));
 
 		nextAnimalTimer = animals.Count == 0 ? 5 : 5 * Mathf.Pow(animals.Count, 1.1f) + Random.Range(100, 150);
-
 	}
 
 	private void Update()
@@ -206,10 +256,7 @@ public class GameManager : Singleton<GameManager>
 	//	}
 	//}
 
-	public AnimalInfo ChooseNewAnimal()
-	{
-		return new AnimalInfo(names[Random.Range(0, names.Count)], animalSprites[Random.Range(0, animalSprites.Count)].name);
-	}
+	public AnimalInfo ChooseNewAnimal() => new AnimalInfo(animalNames[Random.Range(0, animalNames.Count)], animalSprites[Random.Range(0, animalSprites.Count)].name);
 
 	public SpriteAtlas GetSpriteAtlasByName(string name)
 	{
