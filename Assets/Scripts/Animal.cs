@@ -21,7 +21,7 @@ public class Animal : MonoBehaviour
 	private bool usingEquipment;
 	IEquipment equipmentInUse = null;
 
-	public AnimalInfo AnimalInfo { get; private set; }
+	[field: SerializeField] public AnimalInfo AnimalInfo { get; private set; }
 
 	public float Food
 	{
@@ -98,7 +98,7 @@ public class Animal : MonoBehaviour
 		get { return behaviour; }
 		set
 		{
-			Debug.Log($"Behaviour changing to {value}");
+			//Debug.Log($"Behaviour changing to {value}");
 			behaviour = value;
 		}
 	}
@@ -140,12 +140,12 @@ public class Animal : MonoBehaviour
 			case Behaviours.Pooping:
 				ActionPoop();
 				break;
-			case Behaviours.SleepingInPlace:
-				break;
-			case Behaviours.PoopingInPlace:
-				break;
-			default:
-				break;
+			//case Behaviours.SleepingInPlace:
+			//	break;
+			//case Behaviours.PoopingInPlace:
+			//	break;
+			//default:
+			//	break;
 		}
 		// Manage needs
 		DecrementNeeds();
@@ -220,7 +220,7 @@ public class Animal : MonoBehaviour
 
 				if (GameManager.Instance.TryGetBed(out bed))
 				{
-					Debug.Log($"Sleeping in bed {bed.name}");
+					//Debug.Log($"Sleeping in bed {bed.name}");
 					equipmentInUse = bed;
 					agent.SetDestination(equipmentInUse.InteractLocation.position);
 					return Behaviours.Sleeping;
@@ -237,7 +237,7 @@ public class Animal : MonoBehaviour
 			return Behaviours.Playing;
 		}
 
-		Debug.Log("No matches, wandering");
+		//Debug.Log("No matches, wandering");
 		// No behaviours chosen, choose a new spot to nav to
 		FindNewWanderLocation();
 		return Behaviours.Idle;
@@ -267,7 +267,7 @@ public class Animal : MonoBehaviour
 		LitterTray lt = equipmentInUse as LitterTray;
 		if (!usingEquipment)
 		{
-			Debug.Log($"Reached LitterTray {lt.name}");
+			//Debug.Log($"Reached LitterTray {lt.name}");
 			usingEquipment = true;
 			animator.SetBool("Pooping", true);
 			timer = lt.UseTime;
@@ -296,7 +296,7 @@ public class Animal : MonoBehaviour
 		FoodBowl fb = equipmentInUse as FoodBowl;
 		if (!usingEquipment)
 		{
-			Debug.Log($"Reached FoodBowl {fb.name}");
+			//Debug.Log($"Reached FoodBowl {fb.name}");
 			usingEquipment = true;
 			animator.SetBool("Eating", true);
 			timer = fb.UseTime;
@@ -334,7 +334,7 @@ public class Animal : MonoBehaviour
 		Toy t = equipmentInUse as Toy;
 		if (!usingEquipment)
 		{
-			Debug.Log($"Reached Toy {t.name}");
+			//Debug.Log($"Reached Toy {t.name}");
 			usingEquipment = true;
 			animator.SetBool("Playing", true);
 			timer = t.UseTime;
@@ -348,7 +348,7 @@ public class Animal : MonoBehaviour
 
 		// On wait time finished, roll to stop playing
 		float stopPlayRoll = Random.value;
-		Debug.Log($"Ending play roll: {stopPlayRoll}/{Entertainment - 0.3f}");
+		//Debug.Log($"Ending play roll: {stopPlayRoll}/{Entertainment - 0.3f}");
 		if (stopPlayRoll < Entertainment - 0.3f)
 		{
 			usingEquipment = false;
@@ -382,7 +382,7 @@ public class Animal : MonoBehaviour
 
 		// On wait time finished, roll to stop sleeping
 		float stopSleepRoll = Random.value;
-		Debug.Log($"Ending sleep roll: {stopSleepRoll}/{Sleep - 0.1f}");
+		//Debug.Log($"Ending sleep roll: {stopSleepRoll}/{Sleep - 0.1f}");
 		if (stopSleepRoll < Sleep - 0.1f)
 		{
 			usingEquipment = false;
@@ -436,12 +436,12 @@ public class Animal : MonoBehaviour
 	{
 		float entertainmentModifier = Mathf.Lerp(1.5f, 1f, Entertainment * 3.3f);
 
-		Food -= 0.01f * AnimalInfo.foodMod * entertainmentModifier * GameManager.Instance.GlobalFoodDecayModifier * Time.deltaTime;
+		Food -= 0.001f * AnimalInfo.foodMod * entertainmentModifier * GameManager.Instance.GlobalFoodDecayModifier * Time.deltaTime;
 		Attention -= 0.01f * AnimalInfo.attentionMod * entertainmentModifier * GameManager.Instance.GlobalEntertainmentDecayModifier * Time.deltaTime;
-		Sleep -= 0.01f * AnimalInfo.sleepMod * entertainmentModifier * GameManager.Instance.GlobalSleepDecayModifier * Time.deltaTime;
-		Bladder -= 0.01f * AnimalInfo.bladderMod * entertainmentModifier * GameManager.Instance.GlobalBladderDecayModifier * Time.deltaTime;
+		Sleep -= 0.001f * AnimalInfo.sleepMod * entertainmentModifier * GameManager.Instance.GlobalSleepDecayModifier * Time.deltaTime;
+		Bladder -= 0.001f * AnimalInfo.bladderMod * entertainmentModifier * GameManager.Instance.GlobalBladderDecayModifier * Time.deltaTime;
 		Grooming -= 0.01f * AnimalInfo.groomingMod * entertainmentModifier * GameManager.Instance.GlobalGroomingDecayModifier * Time.deltaTime;
-		Entertainment -= 0.01f * AnimalInfo.entertainmentMod * GameManager.Instance.GlobalEntertainmentDecayModifier * Time.deltaTime;
+		Entertainment -= 0.001f * AnimalInfo.entertainmentMod * GameManager.Instance.GlobalEntertainmentDecayModifier * Time.deltaTime;
 	}
 
 	public void SetInfo(AnimalInfo info) => AnimalInfo = info;
