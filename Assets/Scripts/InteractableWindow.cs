@@ -42,7 +42,7 @@ public class InteractableWindow : MonoBehaviour
 			if (equipment is IActionable a)
 				actionButton.interactable = a.IsActionable;
 			if (equipment is ILimitedUseable lu)
-			usesRemaining.text = $"{lu.Uses} use{(lu.Uses == 1 ? "" : "s")} remaining";
+				usesRemaining.text = $"{lu.Uses} use{(lu.Uses == 1 ? "" : "s")} remaining";
 
 		}
 	}

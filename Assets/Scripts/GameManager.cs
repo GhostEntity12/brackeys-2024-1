@@ -232,7 +232,7 @@ public class GameManager : Singleton<GameManager>
 	{
 		gachaScreen.Setup(ChooseNewAnimal());
 		gachaScreen.onResetEvent += SpawnAnimal;
-		LeanTween.moveY(doorButton.gameObject, -240, 0.3f).setEaseInBack();
+		LeanTween.moveY(doorButton.gameObject, -190, 0.3f).setEaseInBack();
 		doorButtonActive = false;
 		doorButton.interactable = false;
 		nextAnimalTimer = (5 * Mathf.Pow(animals.Count, 1.1f) + Random.Range(1,5));

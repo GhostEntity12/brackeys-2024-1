@@ -21,7 +21,7 @@ public class Animal : MonoBehaviour
 	private bool usingEquipment;
 	IEquipment equipmentInUse = null;
 
-	public AnimalInfo AnimalInfo { get; private set; }
+	[field: SerializeField] public AnimalInfo AnimalInfo { get; private set; }
 
 	public float Food
 	{
