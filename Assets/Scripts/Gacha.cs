@@ -10,6 +10,7 @@ public class Gacha : MonoBehaviour
 	[SerializeField] CanvasGroup closeButton;
 	[SerializeField] Image animal;
 	[SerializeField] RectTransform info;
+	[SerializeField] AudioClip opening;
 
 	AnimalInfo animalInfo;
 
@@ -51,14 +52,15 @@ public class Gacha : MonoBehaviour
 		active = true;
 		doorButton.enabled = false;
 		doorAnimator.SetTrigger("Bounce");
-		LeanTween.alphaCanvas(lightBeamGroup, 1f, 0.5f).setDelay(0.55f);
-		LeanTween.alphaCanvas(fade, 1, 0.2f).setDelay(2.2f).setOnComplete(() => lightBeamsTransform.anchoredPosition = new(0, -341));
+		GameManager.Instance.PlayAudioClip(opening, 0.5f);
+		LeanTween.alphaCanvas(lightBeamGroup, 1f, 0.5f).setDelay(1f);
+		LeanTween.alphaCanvas(fade, 1, 0.75f).setDelay(2.75f).setOnComplete(() => lightBeamsTransform.anchoredPosition = new(0, -341));
 
 		//After flash
-		LeanTween.alphaCanvas(fade, 0, 0.5f).setDelay(2.8f);
+		LeanTween.alphaCanvas(fade, 0, 0.5f).setDelay(3.5f);
 
 		// Show Info
-		LeanTween.moveX(info, 600, 0.4f).setDelay(3f).setOnComplete(() => closeButton.interactable = closeButton.blocksRaycasts = true);
+		LeanTween.moveX(info, 600, 0.4f).setDelay(4f).setOnComplete(() => closeButton.interactable = closeButton.blocksRaycasts = true);
 	}
 
 	public void Reset()

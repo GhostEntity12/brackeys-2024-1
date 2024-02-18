@@ -25,7 +25,9 @@ public class PhoneContacts : MonoBehaviour
 	{
 		while (contactsParent.childCount > 0)
 		{
-			DestroyImmediate(contactsParent.GetChild(0).gameObject);
+			Transform t = contactsParent.GetChild(0);
+			t.GetComponent<Button>().onClick.RemoveListener(t.GetComponent<Contact>().onButtonPress);
+			DestroyImmediate(t.gameObject);
 		}
 	}
 }

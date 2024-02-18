@@ -33,7 +33,7 @@ Transform:
   m_Children:
   - {fileID: 737369362095714510}
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &737369361709437615
 MonoBehaviour:
@@ -48,6 +48,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   wanderRadius: 8
+  <AnimalInfo>k__BackingField:
+    name: 
+    spriteAtlasName: 
+    attributes: 
+    foodMod: 0
+    entertainmentMod: 0
+    attentionMod: 0
+    sleepMod: 0
+    bladderMod: 0
+    groomingMod: 0
+    speed: 0
+    timeBetweenMovements: {x: 0, y: 0}
+    food: 0
+    entertainment: 0
+    attention: 0
+    sleep: 0
+    bladder: 0
+    grooming: 0
 --- !u!195 &737369361709437600
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -179,12 +197,12 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: -1452315379, guid: 7d400b3ba97ef2c40a932a7e383920b5, type: 3}
+  m_Sprite: {fileID: -474010454, guid: 4d31b00e786ce8b478f71517d7c76aa1, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 8, y: 6}
+  m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1

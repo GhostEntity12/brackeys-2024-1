@@ -1,12 +1,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.AI;
 using UnityEngine.U2D;
 using UnityEngine.UI;
 
 public class GameManager : Singleton<GameManager>
 {
 	public List<Animal> animals = new();
+	public Phone phone;
+
+	[SerializeField] Animator cardboardBox;
 
 	[Header("Buttons")]
 	[SerializeField] Button doorButton;
@@ -21,7 +25,7 @@ public class GameManager : Singleton<GameManager>
 
 	[Space(20)]
 	[SerializeField] Gacha gachaScreen;
-	
+
 	[Header("Global Modifiers")]
 	public float GlobalFoodDecayModifier = 1;
 	public float GlobalEntertainmentDecayModifier = 1;
@@ -130,6 +134,13 @@ public class GameManager : Singleton<GameManager>
 		"I need a {0} animal ASAP! Seriously!",
 		"Hello there, I require one of your finest {0} animals. Thank you for your cooperation"
 	};
+	public static List<string> confirmationMessages = new()
+	{
+		"I have the perfect pet for you, just you wait!",
+		"Absolutely! Sending one to you now!",
+		"They are on their way! I can't wait for you to meet them!",
+		"Take good care of them! They are on their way now!"
+	};
 
 	private Queue<Bed> availableBeds = new();
 	private Queue<FoodBowl> availableFoodbowls = new();
@@ -140,10 +151,24 @@ public class GameManager : Singleton<GameManager>
 	bool doorButtonActive = false;
 
 	public static System.Random rand = new();
+	private AudioSource audioSource;
+
+	protected override void Awake()
+	{
+		base.Awake();
+
+		SaveData d = Save.Read();
+		phone.requests = d.requests;
+		foreach (AnimalInfo a in d.animals)
+		{
+			SpawnAnimal(a);
+		}
+	}
 
 	private void Start()
 	{
 		Application.targetFrameRate = 100;
+		audioSource = GetComponent<AudioSource>();
 
 		// Make equipment available
 		FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None).OfType<IEquipment>().ToList().ForEach(e => ReturnEquipment(e));
@@ -256,7 +281,7 @@ public class GameManager : Singleton<GameManager>
 	//	}
 	//}
 
-	public AnimalInfo ChooseNewAnimal() => new AnimalInfo(animalNames[Random.Range(0, animalNames.Count)], animalSprites[Random.Range(0, animalSprites.Count)].name);
+	public AnimalInfo ChooseNewAnimal() => new(animalNames[Random.Range(0, animalNames.Count)], animalSprites[Random.Range(0, animalSprites.Count)].name);
 
 	public SpriteAtlas GetSpriteAtlasByName(string name)
 	{
@@ -282,6 +307,28 @@ public class GameManager : Singleton<GameManager>
 		LeanTween.moveY(doorButton.gameObject, -190, 0.3f).setEaseInBack();
 		doorButtonActive = false;
 		doorButton.interactable = false;
-		nextAnimalTimer = (5 * Mathf.Pow(animals.Count, 1.1f) + Random.Range(1,5));
+		nextAnimalTimer = (5 * Mathf.Pow(animals.Count, 1.1f) + Random.Range(100, 150));
 	}
+
+	public void ClearForAdoption(Animal a)
+	{
+		a.GetComponent<NavMeshAgent>().enabled = false;
+		animals.Remove(a);
+		cardboardBox.transform.parent = a.transform;
+		cardboardBox.transform.localPosition = new Vector3(0f, 0.625f, -0.01f);
+		cardboardBox.SetTrigger("BoxUp");
+		LeanTween.scale(a.gameObject, Vector3.zero, 0.25f).setDelay(1f).setOnComplete(() =>
+		{
+			LeanTween.delayedCall(0.3f, () =>
+			{
+				cardboardBox.transform.SetParent(null);
+				Destroy(a.gameObject);
+			});
+		});
+	}
+
+	public void PlayAudioClip(AudioClip ac, float vol = 1) => audioSource.PlayOneShot(ac, vol);
+
+	public void SaveGame() => Save.Write();
+
 }

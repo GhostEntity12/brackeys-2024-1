@@ -19,9 +19,11 @@ public class Phone : MonoBehaviour
 	float nextRequestTimer;
 	bool unreadMessages;
 
+	[SerializeField] AudioClip notification;
+
 	private void Start()
 	{
-		nextRequestTimer = requests.Count == 0 ? 3 : 5 * Mathf.Pow(requests.Count, 1.25f) + Random.Range(100, 150);
+		nextRequestTimer = requests.Count == 0 ? 30 : 5 * Mathf.Pow(requests.Count, 1.25f) + Random.Range(100, 150);
 		rectTransform = transform as RectTransform;
 		buttonRectTransform = phoneButton.transform as RectTransform;
 	}
@@ -39,6 +41,7 @@ public class Phone : MonoBehaviour
 			{
 				LeanTween.moveY(buttonRectTransform, 40, 0.2f).setEaseInCubic();
 			});
+			GameManager.Instance.PlayAudioClip(notification);
 		}
 	}
 

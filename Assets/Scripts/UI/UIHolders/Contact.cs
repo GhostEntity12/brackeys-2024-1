@@ -9,7 +9,7 @@ public class Contact : MonoBehaviour
 	[SerializeField] Image icon;
 	[SerializeField] TextMeshProUGUI contactName;
 	[SerializeField] TextMeshProUGUI lookingFor;
-	UnityAction onButtonPress;
+	public UnityAction onButtonPress;
 	public void Setup(Request r, UnityAction action)
 	{
 		unreadDot.enabled = r.unread;
@@ -17,10 +17,5 @@ public class Contact : MonoBehaviour
 		contactName.text = r.name;
 		lookingFor.text = $"Looking for {r.attributeString}";
 		onButtonPress = action;
-	}
-
-	private void OnDestroy()
-	{
-		GetComponent<Button>().onClick.RemoveListener(onButtonPress);
 	}
 }
