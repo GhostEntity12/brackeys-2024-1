@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.U2D;
@@ -25,6 +26,7 @@ public class GameManager : Singleton<GameManager>
 
 	[Space(20)]
 	[SerializeField] Gacha gachaScreen;
+	[SerializeField] TextMeshProUGUI timetoSpawn;
 
 	[Header("Global Modifiers")]
 	public float GlobalFoodDecayModifier = 1;
@@ -178,6 +180,7 @@ public class GameManager : Singleton<GameManager>
 
 	private void Update()
 	{
+		//timetoSpawn.text = nextAnimalTimer.ToString();
 		if (animals.Count < maxAnimals)
 		{
 			nextAnimalTimer -= Time.deltaTime;
